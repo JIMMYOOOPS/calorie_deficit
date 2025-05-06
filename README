@@ -1,0 +1,8 @@
+calorie_deficit/
+├── config/
+│   └── config.go       // Configuration constants and logic
+├── utils/
+│   └── env.go          // Utility functions for environment variables
+├── routes/
+│   └── routes.go       // Route definitions
+└── main.go             // Application entry point

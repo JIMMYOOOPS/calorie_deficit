@@ -13,12 +13,12 @@ func RegisterRoutes(router *gin.Engine) {
 	{
 		// entry point for the API
 		v1.GET("/", func(context *gin.Context) {
-			context.JSON(200, types.Response{Message: "Welcome to the Calorie Deficit API!"})
+			context.JSON(200, types.SuccessResponse[string]{Message: "Welcome to the Calorie Deficit API!"})
 		})
 
 		// health check endpoint
 		v1.GET("/health", func(context *gin.Context) {
-			context.JSON(200, types.Response{Message: "OK"})
+			context.JSON(200, types.SuccessResponse[string]{Message: "OK"})
 		})
 
 		// other module routes can be added here...
