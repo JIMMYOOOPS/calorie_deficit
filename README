@@ -1,3 +1,8 @@
+## Calorie Deficit API
+This is a simple REST API built with Go that allows users to track their calorie intake and expenditure. The API provides endpoints for managing user profiles, logging food intake, and tracking exercise.
+
+### Folder Structure
+```plaintext
 calorie_deficit/
 ├── config/
 │   └── config.go                # Configuration logic
@@ -11,3 +16,7 @@ calorie_deficit/
 │   └── response.go              # Response types
 ├── main.go                      # Application entry point
 └── go.mod                       # Go module file
+```
+### Next Steps for Development
+- Health Check Endpoint: Implement a health check endpoint to verify the API status and Database Connection.
+- Logging: Integrate a logging library to log requests and errors.
