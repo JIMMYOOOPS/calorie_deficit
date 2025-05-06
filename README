@@ -1,8 +1,13 @@
 calorie_deficit/
 ├── config/
-│   └── config.go       // Configuration constants and logic
-├── utils/
-│   └── env.go          // Utility functions for environment variables
+│   └── config.go                # Configuration logic
+├── infrastructure/
+│   └── database/
+│       └── postgres/
+│           └── connection.go    # Database connection logic
 ├── routes/
-│   └── routes.go       // Route definitions
-└── main.go             // Application entry point
+│   └── routes.go                # API route definitions
+├── types/
+│   └── response.go              # Response types
+├── main.go                      # Application entry point
+└── go.mod                       # Go module file
