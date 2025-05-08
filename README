@@ -17,6 +17,13 @@ calorie_deficit/
 ├── main.go                      # Application entry point
 └── go.mod                       # Go module file
 ```
+
+## Initial Setup
+### Environment Variables
+- Create a `.env` file in the root directory according to the `.env.example` file.
+### POSTGRESQL using Docker Compose
+- ``docker-compose -f docker/docker-compose.yml up``: This command will start a PostgreSQL database in a Docker container.
+
 ### Next Steps for Development
 - Health Check Endpoint: Implement a health check endpoint to verify the API status and Database Connection.
 - Logging: Integrate a logging library to log requests and errors.
