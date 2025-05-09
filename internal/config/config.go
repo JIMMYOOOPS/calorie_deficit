@@ -5,7 +5,7 @@ import (
 )
 
 // Set the SERVER_PORT either from an environment variable or default to ":3000"
-var SERVER_PORT = utils.GetEnv("SERVER_PORT", ":3000")
+var SERVER_PORT = utils.GetEnv("SERVER_PORT", ":8080")
 
 // Set the Database config
 type DatabaseConfig struct {

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"calorie_deficit/internal/config" // Import config package early to set up environment variables
-	"calorie_deficit/internal/infrastructure/database/postgres"
-	"calorie_deficit/internal/pkg/logger" // Import logger package early to set up logging
+	"calorie_deficit/internal/config"                           // Import config package early to set up environment variables
+	"calorie_deficit/internal/infrastructure/database/postgres" // Import mcp package early to initialize the client
+	"calorie_deficit/internal/pkg/logger"                       // Import logger package early to set up logging
 	"calorie_deficit/internal/routes"
 
 	// Import utils package early to load environment variables
