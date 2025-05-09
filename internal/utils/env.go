@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"calorie_deficit/internal/constants"
+
 	"log"
 	"os"
 
@@ -10,7 +12,9 @@ import (
 // init function is used to load environment variables from a .env file before the main function is called.
 func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Printf("Error loading .env file: %v", err)
+		log.Print(constants.EnvFileLoadFailed, err)
+	} else {
+		log.Println(constants.EnvFileLoaded)
 	}
 }
 

@@ -1,9 +1,9 @@
 package main
 
 import (
-	// Import utils package early to load environment variables
 	"calorie_deficit/internal/config" // Import config package early to set up environment variables
 	"calorie_deficit/internal/infrastructure/database/postgres"
+	"calorie_deficit/internal/pkg/logger" // Import logger package early to set up logging
 	"calorie_deficit/internal/routes"
 
 	// Import utils package early to load environment variables
@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	// Initialize logger
+	logger.InitLogger()
 	// Initialize connection to PostgreSQL database
 	db, err := postgres.ConnectPostgresDB()
 	if err != nil {

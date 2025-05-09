@@ -2,8 +2,9 @@ package postgres
 
 import (
 	"calorie_deficit/internal/config"
+	"calorie_deficit/internal/constants"
+	"calorie_deficit/internal/pkg/logger"
 	"fmt"
-	"log"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,10 +24,10 @@ func ConnectPostgresDB() (*gorm.DB, error) {
 	// Connect to the database
 	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		logger.Logger.Error(constants.PostgresConnectionFailed, err)
 		return nil, err
 	}
 
-	log.Println("Connected to PostgreSQL database successfully")
+	logger.Logger.Info(constants.PostgresConnectionSuccess)
 	return db, nil
 }
