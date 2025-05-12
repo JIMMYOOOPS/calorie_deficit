@@ -4,18 +4,48 @@ This is a simple REST API built with Go that allows users to track their calorie
 ### Folder Structure
 ```plaintext
 calorie_deficit/
-├── config/
-│   └── config.go                # Configuration logic
-├── infrastructure/
-│   └── database/
-│       └── postgres/
-│           └── connection.go    # Database connection logic
-├── routes/
-│   └── routes.go                # API route definitions
-├── types/
-│   └── response.go              # Response types
-├── main.go                      # Application entry point
-└── go.mod                       # Go module file
+├── .air.toml                     # Air configuration for live reloading
+├── .env                          # Environment variables
+├── .env.example                  # Example environment variables
+├── .gitignore                    # Git ignore file
+├── go.mod                        # Go module file
+├── go.sum                        # Go dependencies checksum
+├── main.go                       # Application entry point
+├── README                        # Project documentation
+├── docker/                       # Docker-related files
+│   ├── .env                      # Docker-specific environment variables
+│   ├── docker-compose.yml        # Docker Compose configuration
+│   └── docker-entrypoint-initdb.d/
+│       └── init-user-db.sh       # PostgreSQL initialization script
+├── internal/                     # Internal application logic
+│   ├── config/
+│   │   └── config.go             # Configuration logic
+│   ├── constants/
+│   │   ├── logMessages.go        # Log message constants
+│   │   └── mcp.go                # Constants for MCP (if applicable)
+│   ├── handler/
+│   │   └── health.go             # Health check handler
+│   ├── infrastructure/
+│   │   ├── database/
+│   │   │   └── postgres/
+│   │   │       └── connection.go # Database connection logic
+│   │   └── mcp/
+│   │       ├── client.go         # MCP client logic
+│   │       └── clients/
+│   │           ├── openai.go     # OpenAI client implementation
+│   │           └── openrouter.go # OpenRouter client implementation
+│   └── routes/
+│       └── routes.go             # API route definitions
+├── pkg/                          # Shared utilities
+│   └── logger/
+│       └── logger.go             # Logger initialization
+├── types/                        # Shared types
+│   └── response.go               # Response types
+├── utils/                        # Utility functions
+│   └── env.go                    # Environment variable utilities
+└── tmp/                          # Temporary files
+    ├── build-errors.log          # Build error logs
+    └── main                      # Temporary build artifacts
 ```
 
 ## Initial Setup
@@ -23,7 +53,10 @@ calorie_deficit/
 - Create a `.env` file in the root directory according to the `.env.example` file.
 ### POSTGRESQL using Docker Compose
 - ``docker-compose -f docker/docker-compose.yml up``: This command will start a PostgreSQL database in a Docker container.
+### OPEN_ROUTER_AI API KEY
+- Obtain an API key from OpenRouterAI and set it in the `.env` file as `OPEN_ROUTER_AI_API_KEY`.
 
 ### Next Steps for Development
-- Health Check Endpoint: Implement a health check endpoint to verify the API status and Database Connection.
-- Logging: Integrate a logging library to log requests and errors.
+- Implement the API endpoints 
+#### Food Intake
+- Implement food logging and retrieval.
