@@ -12,9 +12,9 @@ import (
 // init function is used to load environment variables from a .env file before the main function is called.
 func init() {
 	if err := godotenv.Load(); err != nil {
-		log.Print(constants.EnvFileLoadFailed, err)
+		log.Print(constants.LogMessages.Environment.FileLoadFailed, err)
 	} else {
-		log.Println(constants.EnvFileLoaded)
+		log.Println(constants.LogMessages.Environment.FileLoaded)
 	}
 }
 

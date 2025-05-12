@@ -24,10 +24,9 @@ func ConnectPostgresDB() (*gorm.DB, error) {
 	// Connect to the database
 	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
 	if err != nil {
-		logger.Logger.Error(constants.PostgresConnectionFailed, err)
+		logger.Logger.Error(constants.LogMessages.Database.PostgresConnectionFailed, err)
 		return nil, err
 	}
-
-	logger.Logger.Info(constants.PostgresConnectionSuccess)
+	logger.Logger.Info(constants.LogMessages.Database.PostgresConnectionSuccess)
 	return db, nil
 }

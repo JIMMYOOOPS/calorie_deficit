@@ -23,3 +23,24 @@ var POSTGRES_DB_CONFIG = DatabaseConfig{
 	Username: utils.GetEnv("POSTGRES_USER", "default_user"),
 	Password: utils.GetEnv("POSTGRES_PASSWORD", "default_password"),
 }
+
+// Set the OpenAI API key
+type OpenAIConfig struct {
+	APIKey string
+}
+
+type OpenRouterAIConfig struct {
+	APIKey string
+}
+
+var LLM_CONFIG = struct {
+	OpenAIConfig       OpenAIConfig
+	OpenRouterAIConfig OpenRouterAIConfig
+}{
+	OpenAIConfig: OpenAIConfig{
+		APIKey: utils.GetEnv("OPENAI_API_KEY", "default_openai_api_key"),
+	},
+	OpenRouterAIConfig: OpenRouterAIConfig{
+		APIKey: utils.GetEnv("OPEN_ROUTER_AI_API_KEY", "default_openrouterai_api_key"),
+	},
+}
