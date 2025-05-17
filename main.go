@@ -4,6 +4,7 @@ import (
 	"calorie_deficit/internal/config"    // Import config package early to set up environment variables
 	"calorie_deficit/internal/constants" // Import constants package early to load environment variables
 	"calorie_deficit/internal/infrastructure/database/postgres"
+	"calorie_deficit/internal/infrastructure/database/postgres/migrations"
 	"calorie_deficit/internal/infrastructure/mcp"
 	"calorie_deficit/internal/pkg/logger"
 	"calorie_deficit/internal/routes"
@@ -19,6 +20,10 @@ func main() {
 	db, databaseError := postgres.ConnectPostgresDB()
 	if databaseError != nil {
 		panic(databaseError)
+	}
+	// Migrate the database
+	if migrateError := migrations.AutoMigrate(db); migrateError != nil {
+		panic(migrateError)
 	}
 	// Initialize MCP client
 	_, mcpClientError := mcp.InitializeClient(constants.LLMs.OpenRouterAI.Name)

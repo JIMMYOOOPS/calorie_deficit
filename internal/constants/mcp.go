@@ -1,3 +1,5 @@
+// internal/constants/mcp.go
+
 package constants
 
 type LLM struct {

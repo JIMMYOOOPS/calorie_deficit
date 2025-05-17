@@ -3,6 +3,10 @@ package constants
 type DatabaseLogMessages struct {
 	PostgresConnectionSuccess string
 	PostgresConnectionFailed  string
+	PostgresMigration         struct {
+		MigrationSuccess string
+		MigrationFailed  string
+	}
 }
 
 type EnvironmentLogMessages struct {
@@ -26,6 +30,13 @@ var LogMessages = struct {
 	Database: DatabaseLogMessages{
 		PostgresConnectionSuccess: "Connected to PostgreSQL database successfully",
 		PostgresConnectionFailed:  "Failed to connect to PostgreSQL database",
+		PostgresMigration: struct {
+			MigrationSuccess string
+			MigrationFailed  string
+		}{
+			MigrationSuccess: "Postgres migration successful",
+			MigrationFailed:  "Postgres migration failed",
+		},
 	},
 	Environment: EnvironmentLogMessages{
 		FileLoaded:     "Environment variables loaded successfully",

@@ -16,18 +16,26 @@ type LLMClient interface {
 }
 
 func InitializeClient(llm string) (LLMClient, error) {
+	// Init constants for readability
+	openAIName := constants.LLMs.OpenAI.Name
+	openAIAPIkey := config.LLM_CONFIG.OpenAIConfig.APIKey
+	openRouterAIName := constants.LLMs.OpenRouterAI.Name
+	openRouterAPIkey := config.LLM_CONFIG.OpenRouterAIConfig.APIKey
+	clientInitMessage := constants.LogMessages.MCP.Client.ClientInitialized
+	invalidModelSpecified := constants.LogMessages.MCP.Client.InvalidModelSpecified
+
 	switch llm {
-	case "openai":
-		apiKey := config.LLM_CONFIG.OpenAIConfig.APIKey
+	case openAIName:
+		apiKey := openAIAPIkey
 		client := clients.NewOpenAIClient(apiKey)
-		logger.Logger.Infof(constants.LogMessages.MCP.Client.ClientInitialized, llm)
+		logger.Logger.Infof(clientInitMessage, llm)
 		return client, nil
-	case "openRouter":
-		apiKey := config.LLM_CONFIG.OpenRouterAIConfig.APIKey
+	case openRouterAIName:
+		apiKey := openRouterAPIkey
 		client := clients.NewOpenRouterClient(apiKey)
-		logger.Logger.Infof(constants.LogMessages.MCP.Client.ClientInitialized, llm)
+		logger.Logger.Infof(clientInitMessage, llm)
 		return client, nil
 	default:
-		return nil, errors.New("invalid LLM specified")
+		return nil, errors.New(invalidModelSpecified)
 	}
 }

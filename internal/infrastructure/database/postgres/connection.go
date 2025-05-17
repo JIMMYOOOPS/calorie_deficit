@@ -8,6 +8,7 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 // ConnectDB establishes a connection to the PostgreSQL database using GORM
@@ -22,7 +23,9 @@ func ConnectPostgresDB() (*gorm.DB, error) {
 	)
 
 	// Connect to the database
-	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dataSourceName), &gorm.Config{
+		Logger: gormLogger.Default.LogMode(gormLogger.Info),
+	})
 	if err != nil {
 		logger.Logger.Error(constants.LogMessages.Database.PostgresConnectionFailed, err)
 		return nil, err
