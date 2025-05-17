@@ -10,7 +10,7 @@ import (
 // DailyIntake contains the daily intake model
 type DailyIntake struct {
 	ID        uint               `gorm:"primaryKey"`
-	USER_ID   uint               `gorm:"	index"`
+	UserID    uint               `gorm:"index"` // UserID is the foreign key to the user table
 	Date      time.Time          `gorm:"index"`
 	MealType  constants.MealType `gorm:"index"`                    // MealType is an enum for the meal type
 	MealItems []MealItem         `gorm:"foreignKey:DailyIntakeID"` // MealItems is a slice of MealItem
@@ -24,6 +24,7 @@ type MealItem struct {
 	DailyIntakeID uint `gorm:"index"`
 	Name          string
 	Measurement   constants.MeasurementType
+	Quantity      float64
 	Calorie       float64
 }
 
