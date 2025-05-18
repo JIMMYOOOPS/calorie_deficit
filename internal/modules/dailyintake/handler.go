@@ -2,6 +2,10 @@
 package dailyintake
 
 import (
+	"calorie_deficit/internal/constants"
+	"calorie_deficit/internal/pkg/logger"
+	"calorie_deficit/internal/types"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,26 +21,45 @@ func NewHandler(service *Service) *Handler {
 	}
 }
 
+var (
+	// ErrInvalidRequest is an error for invalid request
+	errInvalidRequest = types.ErrorResponse{
+		Code:    400,
+		Message: constants.LogMessages.General.InvalidRequest,
+	}
+)
+
 // CreateDailyIntakeHandler handles the creation of a new daily intake record
 func (handler *Handler) CreateDailyIntakeHandler(context *gin.Context) {
-	// Bind the request body to a struct (not shown here)
-	var request DailyIntakeCreateRequestDTO
-	if err := context.ShouldBindJSON(&request); err != nil {
-		context.JSON(400, gin.H{"error": "Invalid request", "details": err.Error()})
+	// Bind the request body to a struct
+	var createReq DailyIntakeCreateRequestDTO
+	if err := context.ShouldBindJSON(&createReq); err != nil {
+		logger.Logger.Error(err.Error())
+		context.JSON(400, errInvalidRequest)
 		return
 	}
 	// Validate the request
 	serviceRequest := DailyIntakeCreateServiceDTO{
-		UserID:    request.UserID,
-		Date:      request.Date,
-		MealType:  request.MealType,
-		MealItems: make([]MealItemDTO, len(request.MealItems)),
+		UserID:    createReq.UserID,
+		Date:      createReq.Date,
+		MealType:  createReq.MealType,
+		MealItems: make([]MealItemDTO, len(createReq.MealItems)),
 	}
-
+	for i, item := range createReq.MealItems {
+		serviceRequest.MealItems[i] = MealItemDTO{
+			Name:        item.Name,
+			Measurement: item.Measurement,
+			Quantity:    item.Quantity,
+		}
+	}
 	// Call the service layer to create the daily intake
-	serviceResponse, err := handler.Service.CreateDailyIntake(serviceRequest)
-	if err != nil {
-		context.JSON(500, gin.H{"error": "Failed to create daily intake", "details": err.Error()})
+	serviceResponse, serviceError := handler.Service.CreateDailyIntake(serviceRequest)
+	if serviceError != nil {
+		logger.Logger.Error(serviceError.Error())
+		context.JSON(500, types.ErrorResponse{
+			Code:    500,
+			Message: serviceError.Error(),
+		})
 		return
 	}
 	// Map the service response to the response DTO
