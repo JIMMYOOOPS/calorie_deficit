@@ -2,6 +2,7 @@ package routes
 
 import (
 	"calorie_deficit/internal/handler"
+	"calorie_deficit/internal/routes/dailyintake"
 	"calorie_deficit/internal/types"
 
 	"github.com/gin-gonic/gin"
@@ -10,8 +11,10 @@ import (
 
 // RegisterRoutes initializes the Gin router and sets up the routes for the application
 func RegisterRoutes(router *gin.Engine, db *gorm.DB) {
+	// api version 1
+	api := router.Group("/api")
 	// version 1 group
-	v1 := router.Group("/v1")
+	v1 := api.Group("/v1")
 	{
 		// entry point for the API
 		v1.GET("/", func(context *gin.Context) {
@@ -21,6 +24,8 @@ func RegisterRoutes(router *gin.Engine, db *gorm.DB) {
 		// health check endpoint
 		v1.GET("/healthz", handler.HealthCheckHandler(db))
 
-		// other module routes can be added here...
+		// import daily intake routes
+		dailyintake.RegisterDailyIntakeRoutes(v1, db)
+
 	}
 }
