@@ -2,6 +2,8 @@
 package dailyintake
 
 import (
+	"calorie_deficit/internal/constants"
+
 	"errors"
 )
 
@@ -17,7 +19,7 @@ func NewService(repository *Repository) *Service {
 
 func (service *Service) CreateDailyIntake(params DailyIntakeCreateServiceDTO) (*DailyIntake, error) {
 	// Check if there is already a record for the same date and meal type
-	existingIntake, err := service.Repository.GetDailyIntakeByDateAndMealType(params.UserID, params.Date, params.MealType)
+	existingIntake, err := service.GetDailyIntakeByDateAndMealType(params.UserID, params.Date, params.MealType)
 	if err != nil {
 		return nil, err
 	}
@@ -58,4 +60,13 @@ func (service *Service) AddMealItemsToDailyIntake(dailyIntakeID uint, mealItems 
 		return nil, err
 	}
 	return addMealItemResponse, nil
+}
+
+func (service *Service) GetDailyIntakeByDateAndMealType(userID uint, date string, mealType constants.MealType) (*DailyIntake, error) {
+	// Call the repository method to get the daily intake by date and meal type
+	dailyIntake, err := service.Repository.GetDailyIntakeByDateAndMealType(userID, date, mealType)
+	if err != nil {
+		return nil, err
+	}
+	return dailyIntake, nil
 }

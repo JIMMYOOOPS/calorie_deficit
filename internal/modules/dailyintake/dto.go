@@ -20,6 +20,7 @@ type MealItemRequestDTO struct {
 }
 
 type DailyIntakeCreateResponseDTO struct {
+	ID        uint                  `json:"id"`         // ID is the primary key of the daily intake table
 	UserID    uint                  `json:"user_id"`    // UserID is the foreign key to the user table
 	Date      string                `json:"date"`       // Date in ISO 8601 format 2025-05-18T02:55:46.844Z
 	MealType  constants.MealType    `json:"meal_type"`  // MealType is an enum for the meal type
@@ -29,10 +30,12 @@ type DailyIntakeCreateResponseDTO struct {
 }
 
 type MealItemResponseDTO struct {
-	Name        string                    `json:"name"`        // Name of the meal item
-	Measurement constants.MeasurementType `json:"measurement"` // Measurement is an enum for the measurement type
-	Quantity    float64                   `json:"quantity"`    // Quantity of the meal item
-	Calorie     float64                   `json:"calorie"`     // Calorie of the meal item
+	ID            uint                      `json:"id"`              // ID is the primary key of the meal item table
+	DailyIntakeID uint                      `json:"daily_intake_id"` // DailyIntakeID is the foreign key to the daily intake table
+	Name          string                    `json:"name"`            // Name of the meal item
+	Measurement   constants.MeasurementType `json:"measurement"`     // Measurement is an enum for the measurement type
+	Quantity      float64                   `json:"quantity"`        // Quantity of the meal item
+	Calorie       float64                   `json:"calorie"`         // Calorie of the meal item
 }
 
 type DailyIntakeCreateServiceDTO struct {

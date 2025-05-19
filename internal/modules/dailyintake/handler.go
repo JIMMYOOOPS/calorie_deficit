@@ -6,6 +6,8 @@ import (
 	"calorie_deficit/internal/pkg/logger"
 	"calorie_deficit/internal/types"
 
+	"errors"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,13 +31,32 @@ var (
 	}
 )
 
+// DailyIntakeCreateRequestDTO represents the request body for creating a daily intake
+func mapMealItemsToDTO(items []MealItemRequestDTO) []MealItemDTO {
+	result := make([]MealItemDTO, len(items))
+	for i, item := range items {
+		result[i] = MealItemDTO(item) // if fields match exactly
+	}
+	return result
+}
+
+// DailyIntakeCreateResponseDTO represents the response body for creating a daily intake
+func mapMealItemsToResponseDTO(items []MealItem) []MealItemResponseDTO {
+	result := make([]MealItemResponseDTO, len(items))
+	for i, item := range items {
+		result[i] = MealItemResponseDTO(item) // if fields match exactly
+	}
+	return result
+}
+
 // CreateDailyIntakeHandler handles the creation of a new daily intake record
 func (handler *Handler) CreateDailyIntakeHandler(context *gin.Context) {
+	var appError *types.AppError
 	// Bind the request body to a struct
 	var createReq DailyIntakeCreateRequestDTO
 	if err := context.ShouldBindJSON(&createReq); err != nil {
 		logger.Logger.Error(err.Error())
-		context.JSON(400, errInvalidRequest)
+		context.JSON(400, types.AppError(errInvalidRequest))
 		return
 	}
 	// Validate the request
@@ -43,21 +64,20 @@ func (handler *Handler) CreateDailyIntakeHandler(context *gin.Context) {
 		UserID:    createReq.UserID,
 		Date:      createReq.Date,
 		MealType:  createReq.MealType,
-		MealItems: make([]MealItemDTO, len(createReq.MealItems)),
-	}
-	for i, item := range createReq.MealItems {
-		serviceRequest.MealItems[i] = MealItemDTO{
-			Name:        item.Name,
-			Measurement: item.Measurement,
-			Quantity:    item.Quantity,
-			Calorie:     item.Calorie,
-		}
+		MealItems: mapMealItemsToDTO(createReq.MealItems),
 	}
 	// Call the service layer to create the daily intake
 	serviceResponse, serviceError := handler.Service.CreateDailyIntake(serviceRequest)
 	if serviceError != nil {
 		logger.Logger.Error(serviceError.Error())
-		context.JSON(500, types.ErrorResponse{
+		if errors.As(serviceError, &appError) {
+			context.JSON(appError.Code, types.AppError{
+				Code:    appError.Code,
+				Message: appError.Message,
+			})
+			return
+		}
+		context.JSON(500, types.AppError{
 			Code:    500,
 			Message: serviceError.Error(),
 		})
@@ -65,20 +85,13 @@ func (handler *Handler) CreateDailyIntakeHandler(context *gin.Context) {
 	}
 	// Map the service response to the response DTO
 	response := DailyIntakeCreateResponseDTO{
+		ID:        serviceResponse.ID,
 		UserID:    serviceResponse.UserID,
-		Date:      serviceResponse.Date.Format("2006-01-02T15:04:05.000Z"),
+		Date:      serviceResponse.Date.Format(constants.IsoFormatMilSec),
 		MealType:  serviceResponse.MealType,
-		MealItems: make([]MealItemResponseDTO, len(serviceResponse.MealItems)),
-		CreatedAt: serviceResponse.CreatedAt.Format("2006-01-02T15:04:05.000Z"),
-		UpdatedAt: serviceResponse.UpdatedAt.Format("2006-01-02T15:04:05.000Z"),
-	}
-	for i, item := range serviceResponse.MealItems {
-		response.MealItems[i] = MealItemResponseDTO{
-			Name:        item.Name,
-			Measurement: item.Measurement,
-			Quantity:    item.Quantity,
-			Calorie:     item.Calorie,
-		}
+		MealItems: mapMealItemsToResponseDTO(serviceResponse.MealItems),
+		CreatedAt: serviceResponse.CreatedAt.Format(constants.IsoFormatMilSec),
+		UpdatedAt: serviceResponse.UpdatedAt.Format(constants.IsoFormatMilSec),
 	}
 	// Return the response
 	context.JSON(201, response)

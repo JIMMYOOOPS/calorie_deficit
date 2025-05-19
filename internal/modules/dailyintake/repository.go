@@ -57,8 +57,7 @@ func (repository *Repository) GetDailyIntakeByDateAndMealType(userID uint, date 
 	if err != nil {
 		return nil, err
 	}
-	// Query the database for the daily intake record
-	// the date only needs to match the date part, not the time part
+	// Query the database for the daily intake record the date only needs to match the date part
 	err = repository.DB.
 		Where("user_id = ? AND DATE(date) = ? AND meal_type = ?", userID, parsedDate.Format("2006-01-02"), mealType).
 		First(&dailyIntake).Error
