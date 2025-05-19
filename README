@@ -58,5 +58,6 @@ calorie_deficit/
 
 ### Next Steps for Development
 - Implement the API endpoints 
-#### Food Intake
-- Implement food logging and retrieval.
+#### Daily Intake
+- Implement Daily Intake logging and retrieval.
+- Implement List, Update Meal and Delete Meal.

@@ -70,3 +70,12 @@ func (service *Service) GetDailyIntakeByDateAndMealType(userID uint, date string
 	}
 	return dailyIntake, nil
 }
+
+func (service *Service) GetDailyIntake(id uint) (*DailyIntake, error) {
+	// Call the repository method to get the daily intake by ID
+	repositoryResponse, repositoryError := service.Repository.GetDailyIntake(id)
+	if repositoryError != nil {
+		return nil, repositoryError
+	}
+	return repositoryResponse, nil
+}

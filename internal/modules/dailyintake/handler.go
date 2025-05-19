@@ -5,6 +5,7 @@ import (
 	"calorie_deficit/internal/constants"
 	"calorie_deficit/internal/pkg/logger"
 	"calorie_deficit/internal/types"
+	"calorie_deficit/internal/utils"
 
 	"errors"
 
@@ -95,4 +96,45 @@ func (handler *Handler) CreateDailyIntakeHandler(context *gin.Context) {
 	}
 	// Return the response
 	context.JSON(201, response)
+}
+
+// GetDailyIntake use the ID to get the daily intake
+func (handler *Handler) GetDailyIntake(context *gin.Context) {
+	var appError *types.AppError
+	// Use the ID to get the daily intake from parameters
+	idString := context.Param("id")
+	// Validate the ID
+	idUint64, parseError := utils.ParseStringToUint(idString)
+	if parseError != nil {
+		context.JSON(400, types.AppError(errInvalidRequest))
+		return
+	}
+	id := uint(idUint64)
+	serviceResponse, serviceError := handler.Service.GetDailyIntake(id)
+	if serviceError != nil {
+		logger.Logger.Error(serviceError.Error())
+		if errors.As(serviceError, &appError) {
+			context.JSON(appError.Code, types.AppError{
+				Code:    appError.Code,
+				Message: appError.Message,
+			})
+			return
+		}
+		context.JSON(500, types.AppError{
+			Code:    500,
+			Message: serviceError.Error(),
+		})
+		return
+	}
+	// Map the service response to the response DTO
+	response := DailyIntakeCreateResponseDTO{
+		ID:        serviceResponse.ID,
+		UserID:    serviceResponse.UserID,
+		Date:      serviceResponse.Date.Format(constants.IsoFormatMilSec),
+		MealType:  serviceResponse.MealType,
+		MealItems: mapMealItemsToResponseDTO(serviceResponse.MealItems),
+		CreatedAt: serviceResponse.CreatedAt.Format(constants.IsoFormatMilSec),
+		UpdatedAt: serviceResponse.UpdatedAt.Format(constants.IsoFormatMilSec),
+	}
+	context.JSON(200, response)
 }

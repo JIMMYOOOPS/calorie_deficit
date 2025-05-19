@@ -85,3 +85,11 @@ func (repository *Repository) AddMealItemsToDailyIntake(dailyIntakeID uint, meal
 	}
 	return &updatedDailyIntake, nil
 }
+
+func (repository *Repository) GetDailyIntake(id uint) (*DailyIntake, error) {
+	var dailyIntake DailyIntake
+	if err := repository.DB.Preload("MealItems").First(&dailyIntake, id).Error; err != nil {
+		return nil, err
+	}
+	return &dailyIntake, nil
+}
