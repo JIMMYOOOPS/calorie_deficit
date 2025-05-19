@@ -16,6 +16,7 @@ type MealItemRequestDTO struct {
 	Name        string                    `json:"name" binding:"required"`                       // Name of the meal item
 	Measurement constants.MeasurementType `json:"measurement" binding:"required,oneof=grams ml"` // Measurement is an enum for the measurement type
 	Quantity    float64                   `json:"quantity" binding:"required"`                   // Quantity of the meal item
+	Calorie     float64                   `json:"calorie" binding:"required"`                    // Calorie of the meal item
 }
 
 type DailyIntakeCreateResponseDTO struct {
@@ -45,4 +46,5 @@ type MealItemDTO struct {
 	Name        string                    `json:"name"`        // Name of the meal item
 	Measurement constants.MeasurementType `json:"measurement"` // Measurement is an enum for the measurement type
 	Quantity    float64                   `json:"quantity"`    // Quantity of the meal item
+	Calorie     float64                   `json:"calorie"`     // Calorie of the meal item
 }

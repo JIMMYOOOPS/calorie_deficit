@@ -2,25 +2,60 @@
 package dailyintake
 
 import (
-	"gorm.io/gorm"
+	"errors"
 )
 
 type Service struct {
-	DB *gorm.DB
+	Repository *Repository
 }
 
-func NewService() *Service {
-	return &Service{}
-}
-
-func (service *Service) CreateDailyIntake(params DailyIntakeCreateServiceDTO) (DailyIntakeCreateResponseDTO, error) {
-	testResponse := DailyIntakeCreateResponseDTO{
-		UserID:    params.UserID,
-		Date:      params.Date,
-		MealType:  params.MealType,
-		MealItems: make([]MealItemResponseDTO, len(params.MealItems)),
-		CreatedAt: "2025-05-18T02:55:46.844Z",
-		UpdatedAt: "2025-05-18T02:55:46.844Z",
+func NewService(repository *Repository) *Service {
+	return &Service{
+		Repository: repository,
 	}
-	return testResponse, nil
+}
+
+func (service *Service) CreateDailyIntake(params DailyIntakeCreateServiceDTO) (*DailyIntake, error) {
+	// Check if there is already a record for the same date and meal type
+	existingIntake, err := service.Repository.GetDailyIntakeByDateAndMealType(params.UserID, params.Date, params.MealType)
+	if err != nil {
+		return nil, err
+	}
+	// if a record exists for the same date and meal type we want to add the meal items to the existing record
+	if existingIntake != nil {
+		// Update the existing record with the service method AddMealItemsToDailyIntake
+		addMealItemResponse, err := service.AddMealItemsToDailyIntake(existingIntake.ID, params.MealItems)
+		if err != nil {
+			return nil, err
+		}
+		return addMealItemResponse, nil
+	}
+
+	createResponse, err := service.Repository.CreateDailyIntake(&params)
+	if err != nil {
+		return nil, err
+	}
+	return createResponse, nil
+}
+
+func (service *Service) AddMealItemsToDailyIntake(dailyIntakeID uint, mealItems []MealItemDTO) (*DailyIntake, error) {
+	if len(mealItems) == 0 {
+		return nil, errors.New("no meal items provided")
+	}
+	// Map the meal items from the DTO to the existing intake
+	updatedMealItems := make([]MealItem, len(mealItems))
+	for i, item := range mealItems {
+		updatedMealItems[i] = MealItem{
+			Name:        item.Name,
+			Measurement: item.Measurement,
+			Quantity:    item.Quantity,
+			Calorie:     item.Calorie,
+		}
+	}
+	// Update the existing record
+	addMealItemResponse, err := service.Repository.AddMealItemsToDailyIntake(dailyIntakeID, updatedMealItems)
+	if err != nil {
+		return nil, err
+	}
+	return addMealItemResponse, nil
 }

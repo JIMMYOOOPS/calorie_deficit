@@ -50,6 +50,7 @@ func (handler *Handler) CreateDailyIntakeHandler(context *gin.Context) {
 			Name:        item.Name,
 			Measurement: item.Measurement,
 			Quantity:    item.Quantity,
+			Calorie:     item.Calorie,
 		}
 	}
 	// Call the service layer to create the daily intake
@@ -65,11 +66,11 @@ func (handler *Handler) CreateDailyIntakeHandler(context *gin.Context) {
 	// Map the service response to the response DTO
 	response := DailyIntakeCreateResponseDTO{
 		UserID:    serviceResponse.UserID,
-		Date:      serviceResponse.Date,
+		Date:      serviceResponse.Date.Format("2006-01-02T15:04:05.000Z"),
 		MealType:  serviceResponse.MealType,
 		MealItems: make([]MealItemResponseDTO, len(serviceResponse.MealItems)),
-		CreatedAt: serviceResponse.CreatedAt,
-		UpdatedAt: serviceResponse.UpdatedAt,
+		CreatedAt: serviceResponse.CreatedAt.Format("2006-01-02T15:04:05.000Z"),
+		UpdatedAt: serviceResponse.UpdatedAt.Format("2006-01-02T15:04:05.000Z"),
 	}
 	for i, item := range serviceResponse.MealItems {
 		response.MealItems[i] = MealItemResponseDTO{

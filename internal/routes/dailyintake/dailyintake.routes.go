@@ -8,7 +8,9 @@ import (
 )
 
 func RegisterDailyIntakeRoutes(router *gin.RouterGroup, db *gorm.DB) {
-	service := dailyintake.NewService()
+	// Initialize the repository and service
+	repository := dailyintake.NewRepository(db)
+	service := dailyintake.NewService(repository)
 	handler := dailyintake.NewHandler(service)
 	dailyIntakeGroup := router.Group("/daily-intake")
 	{
