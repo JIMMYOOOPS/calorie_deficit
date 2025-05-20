@@ -1,7 +1,10 @@
 package constants
 
 type GeneralLogMessages struct {
-	InvalidRequest string
+	Success             string
+	InternalServerError string
+	InvalidRequest      string
+	NotFound            string
 }
 
 type DatabaseLogMessages struct {
@@ -33,7 +36,10 @@ var LogMessages = struct {
 	MCP         MCPLogMessages
 }{
 	General: GeneralLogMessages{
-		InvalidRequest: "Invalid request",
+		Success:             "Success",
+		InternalServerError: "Internal server error",
+		InvalidRequest:      "Invalid request",
+		NotFound:            "Resource not found",
 	},
 	Database: DatabaseLogMessages{
 		PostgresConnectionSuccess: "Connected to PostgreSQL database successfully",

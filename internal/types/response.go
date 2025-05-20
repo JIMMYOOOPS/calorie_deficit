@@ -8,9 +8,9 @@ type SuccessResponse[T any] struct {
 }
 
 type Meta struct {
-	Page  int `json:"page"`
-	Limit int `json:"limit"`
-	Total int `json:"total"`
+	Page       uint `json:"page"`
+	PageSize   uint `json:"page_size"`
+	TotalCount uint `json:"total_count"`
 }
 
 type ErrorResponse struct {

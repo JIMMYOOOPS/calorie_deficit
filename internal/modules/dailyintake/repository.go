@@ -93,3 +93,57 @@ func (repository *Repository) GetDailyIntake(id uint) (*DailyIntake, error) {
 	}
 	return &dailyIntake, nil
 }
+
+func (repository *Repository) GetDailyIntakesList(params DailyIntakesListServiceDTO) (DailyIntakeListDTO, error) {
+	var (
+		dailyIntakes []DailyIntake
+		totalCount   int64
+	)
+
+	// Build query with filters
+	query := repository.DB.Model(&DailyIntake{}).Preload("MealItems")
+	if params.UserID != nil {
+		query = query.Where("user_id = ?", *params.UserID)
+	}
+	// Only Picks One Date
+	// TODO: Use CreatedAt instead of Date and Range
+	if params.Date != nil {
+		query = query.Where("DATE(date) = ?", params.Date.Format("2006-01-02"))
+	}
+	if params.MealType != "" {
+		query = query.Where("meal_type = ?", params.MealType)
+	}
+
+	// Count total items with filters
+	if err := query.Count(&totalCount).Error; err != nil {
+		return DailyIntakeListDTO{
+			Items:      nil,
+			Page:       params.Page,
+			PageSize:   params.PageSize,
+			TotalCount: 0,
+		}, err
+	}
+
+	// Pagination: calculate offset
+	offset := int((params.Page - 1) * params.PageSize)
+	if offset < 0 {
+		offset = 0
+	}
+
+	// Fetch paginated data
+	if err := query.Offset(offset).Limit(int(params.PageSize)).Find(&dailyIntakes).Error; err != nil {
+		return DailyIntakeListDTO{
+			Items:      nil,
+			Page:       params.Page,
+			PageSize:   params.PageSize,
+			TotalCount: uint(totalCount),
+		}, err
+	}
+
+	return DailyIntakeListDTO{
+		Items:      dailyIntakes,
+		Page:       params.Page,
+		PageSize:   params.PageSize,
+		TotalCount: uint(totalCount),
+	}, nil
+}

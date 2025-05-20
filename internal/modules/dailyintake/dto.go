@@ -3,6 +3,9 @@ package dailyintake
 
 import (
 	"calorie_deficit/internal/constants"
+	"calorie_deficit/internal/types"
+
+	"time"
 )
 
 type DailyIntakeCreateRequestDTO struct {
@@ -50,4 +53,24 @@ type MealItemDTO struct {
 	Measurement constants.MeasurementType `json:"measurement"` // Measurement is an enum for the measurement type
 	Quantity    float64                   `json:"quantity"`    // Quantity of the meal item
 	Calorie     float64                   `json:"calorie"`     // Calorie of the meal item
+}
+
+type DailyIntakesListServiceDTO struct {
+	UserID   *uint      `json:"userId,omitempty"`   // UserID is the foreign key to the user table
+	Date     *time.Time `json:"date,omitempty"`     // Date in ISO 8601 format 2025-05-18T02:55:46.844Z
+	MealType string     `json:"mealType,omitempty"` // MealType is an enum for the meal type
+	Page     uint       `json:"page"`               // Page number for pagination
+	PageSize uint       `json:"pageSize"`           // Page size for pagination
+}
+
+type DailyIntakeListDTO struct {
+	Items      []DailyIntake `json:"items"`      // Items is a slice of DailyIntakeCreateResponseDTO
+	Page       uint          `json:"page"`       // Page number for pagination
+	PageSize   uint          `json:"pageSize"`   // Page size for pagination
+	TotalCount uint          `json:"totalCount"` // Total number of items
+}
+
+type DailyIntakeListResponseDTO struct {
+	Items []DailyIntake `json:"items"` // Items is a slice of DailyIntakeCreateResponseDTO
+	Meta  *types.Meta   `json:"meta"`  // Meta is a pointer to the Meta struct
 }

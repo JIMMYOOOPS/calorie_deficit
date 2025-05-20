@@ -3,8 +3,11 @@ package dailyintake
 
 import (
 	"calorie_deficit/internal/constants"
+	"calorie_deficit/internal/utils"
 
 	"errors"
+
+	"gorm.io/gorm"
 )
 
 type Service struct {
@@ -64,9 +67,12 @@ func (service *Service) AddMealItemsToDailyIntake(dailyIntakeID uint, mealItems 
 
 func (service *Service) GetDailyIntakeByDateAndMealType(userID uint, date string, mealType constants.MealType) (*DailyIntake, error) {
 	// Call the repository method to get the daily intake by date and meal type
-	dailyIntake, err := service.Repository.GetDailyIntakeByDateAndMealType(userID, date, mealType)
-	if err != nil {
-		return nil, err
+	dailyIntake, repositoryError := service.Repository.GetDailyIntakeByDateAndMealType(userID, date, mealType)
+	if repositoryError != nil {
+		if errors.Is(repositoryError, gorm.ErrRecordNotFound) {
+			return nil, utils.HandleNotFoundError(repositoryError)
+		}
+		return nil, repositoryError
 	}
 	return dailyIntake, nil
 }
@@ -75,7 +81,32 @@ func (service *Service) GetDailyIntake(id uint) (*DailyIntake, error) {
 	// Call the repository method to get the daily intake by ID
 	repositoryResponse, repositoryError := service.Repository.GetDailyIntake(id)
 	if repositoryError != nil {
+		if errors.Is(repositoryError, gorm.ErrRecordNotFound) {
+			return nil, utils.HandleNotFoundError(repositoryError)
+		}
 		return nil, repositoryError
+	}
+	return repositoryResponse, nil
+}
+
+func (service *Service) GetDailyIntakesList(params DailyIntakesListServiceDTO) (DailyIntakeListDTO, error) {
+	// Call the repository method to get the daily intake list
+	repositoryResponse, repositoryError := service.Repository.GetDailyIntakesList(params)
+	if repositoryError != nil {
+		if errors.Is(repositoryError, gorm.ErrRecordNotFound) {
+			return DailyIntakeListDTO{
+				Items:      []DailyIntake{},
+				Page:       params.Page,
+				PageSize:   params.PageSize,
+				TotalCount: 0,
+			}, utils.HandleNotFoundError(repositoryError)
+		}
+		return DailyIntakeListDTO{
+			Items:      []DailyIntake{},
+			Page:       params.Page,
+			PageSize:   params.PageSize,
+			TotalCount: 0,
+		}, repositoryError
 	}
 	return repositoryResponse, nil
 }
