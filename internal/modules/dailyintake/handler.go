@@ -50,6 +50,18 @@ func mapMealItemsToResponseDTO(items []MealItem) []MealItemResponseDTO {
 	return result
 }
 
+func mapDailyIntakeToResponseDTO(intake DailyIntake) DailyIntakeCreateResponseDTO {
+	return DailyIntakeCreateResponseDTO{
+		ID:        intake.ID,
+		UserID:    intake.UserID,
+		Date:      intake.Date.Format(constants.IsoFormatMilSec),
+		MealType:  intake.MealType,
+		MealItems: mapMealItemsToResponseDTO(intake.MealItems),
+		CreatedAt: intake.CreatedAt.Format(constants.IsoFormatMilSec),
+		UpdatedAt: intake.UpdatedAt.Format(constants.IsoFormatMilSec),
+	}
+}
+
 // CreateDailyIntakeHandler handles the creation of a new daily intake record
 func (h *Handler) CreateDailyIntake(context *gin.Context) {
 	// Bind the request body to a struct
@@ -72,18 +84,37 @@ func (h *Handler) CreateDailyIntake(context *gin.Context) {
 		handler.ErrorResponse(context, serviceError)
 		return
 	}
-	// Map the service response to the response DTO
-	response := DailyIntakeCreateResponseDTO{
-		ID:        serviceResponse.ID,
-		UserID:    serviceResponse.UserID,
-		Date:      serviceResponse.Date.Format(constants.IsoFormatMilSec),
-		MealType:  serviceResponse.MealType,
-		MealItems: mapMealItemsToResponseDTO(serviceResponse.MealItems),
-		CreatedAt: serviceResponse.CreatedAt.Format(constants.IsoFormatMilSec),
-		UpdatedAt: serviceResponse.UpdatedAt.Format(constants.IsoFormatMilSec),
+
+	handler.SuccessResponse(context, mapDailyIntakeToResponseDTO(*serviceResponse), nil)
+}
+
+// UpdateDailyIntake handles the update of an existing daily intake record
+func (h *Handler) UpdateDailyIntake(context *gin.Context) {
+	// Use the ID to get the daily intake from parameters
+	idString := context.Param("id")
+	// Validate the ID
+	idUint64, parseError := utils.ParseStringToUint(idString)
+	if parseError != nil {
+		context.JSON(400, types.AppError(errInvalidRequest))
+		return
 	}
-	// Return the response
-	context.JSON(201, response)
+	id := uint(idUint64)
+	// Bind the request body to a struct
+	var updateRequest DailyIntakeUpdateRequestDTO
+	if err := context.ShouldBindJSON(&updateRequest); err != nil {
+		logger.Logger.Error(err.Error())
+		context.JSON(400, types.AppError(errInvalidRequest))
+		return
+	}
+
+	// Validate the request
+	serviceRequest := DailyIntakeUpdateServiceDTO(updateRequest)
+	serviceResponse, serviceError := h.Service.UpdateDailyIntake(id, serviceRequest)
+	if serviceError != nil {
+		handler.ErrorResponse(context, serviceError)
+		return
+	}
+	handler.SuccessResponse(context, mapDailyIntakeToResponseDTO(*serviceResponse), nil)
 }
 
 // GetDailyIntake use the ID to get the daily intake
@@ -103,16 +134,7 @@ func (h *Handler) GetDailyIntake(context *gin.Context) {
 		return
 	}
 	// Map the service response to the response DTO
-	response := DailyIntakeCreateResponseDTO{
-		ID:        serviceResponse.ID,
-		UserID:    serviceResponse.UserID,
-		Date:      serviceResponse.Date.Format(constants.IsoFormatMilSec),
-		MealType:  serviceResponse.MealType,
-		MealItems: mapMealItemsToResponseDTO(serviceResponse.MealItems),
-		CreatedAt: serviceResponse.CreatedAt.Format(constants.IsoFormatMilSec),
-		UpdatedAt: serviceResponse.UpdatedAt.Format(constants.IsoFormatMilSec),
-	}
-	context.JSON(200, response)
+	handler.SuccessResponse(context, mapDailyIntakeToResponseDTO(*serviceResponse), nil)
 }
 
 // GetDailyIntakesList handles the retrieval of daily intakes for all daily intakes, the handler can take a query parameter of user_id and date
@@ -172,14 +194,10 @@ func (h *Handler) GetDailyIntakesList(context *gin.Context) {
 			UpdatedAt: intake.UpdatedAt.Format(constants.IsoFormatMilSec),
 		}
 	}
-	response := types.SuccessResponse[[]DailyIntakeCreateResponseDTO]{
-		Message: constants.LogMessages.General.Success,
-		Data:    items,
-		Meta: &types.Meta{
-			Page:       page,
-			PageSize:   pageSize,
-			TotalCount: serviceResponse.TotalCount,
-		},
-	}
-	context.JSON(200, response)
+
+	handler.SuccessResponse(context, items, &types.Meta{
+		Page:       page,
+		PageSize:   pageSize,
+		TotalCount: serviceResponse.TotalCount,
+	})
 }

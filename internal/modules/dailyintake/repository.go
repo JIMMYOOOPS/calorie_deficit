@@ -86,8 +86,60 @@ func (repository *Repository) AddMealItemsToDailyIntake(dailyIntakeID uint, meal
 	return &updatedDailyIntake, nil
 }
 
-func (repository *Repository) GetDailyIntake(id uint) (*DailyIntake, error) {
+func (repository *Repository) UpdateDailyIntake(id uint, params *DailyIntakeUpdateServiceDTO) (*DailyIntake, error) {
+	// Handle MealItems more efficiently
+	if params.MealItems != nil {
+		// 1. Fetch existing meal items
+		var existingItems []MealItem
+		if err := repository.DB.Where("daily_intake_id = ?", id).Find(&existingItems).Error; err != nil {
+			return nil, err
+		}
+		existingMap := make(map[uint]MealItem)
+		for _, item := range existingItems {
+			existingMap[item.ID] = item
+		}
+
+		// 2. Track IDs to keep
+		idsToKeep := make(map[uint]bool)
+		for _, item := range params.MealItems {
+			if item.ID != 0 {
+				idsToKeep[item.ID] = true
+				// Update existing
+				repository.DB.Model(&MealItem{}).Where("id = ?", item.ID).Updates(MealItem{
+					Name:        item.Name,
+					Measurement: item.Measurement,
+					Quantity:    item.Quantity,
+					Calorie:     item.Calorie,
+				})
+			} else {
+				// Create new
+				newItem := MealItem{
+					Name:          item.Name,
+					Measurement:   item.Measurement,
+					Quantity:      item.Quantity,
+					Calorie:       item.Calorie,
+					DailyIntakeID: id,
+				}
+				repository.DB.Create(&newItem)
+			}
+		}
+
+		// 3. Delete items not in the new list
+		for _, oldItem := range existingItems {
+			if !idsToKeep[oldItem.ID] {
+				repository.DB.Delete(&MealItem{}, oldItem.ID)
+			}
+		}
+	}
 	var dailyIntake DailyIntake
+	if err := repository.DB.Preload("MealItems").First(&dailyIntake, id).Error; err != nil {
+		return nil, err
+	}
+	return &dailyIntake, nil
+}
+
+func (repository *Repository) GetDailyIntake(id uint) (*DailyIntake, error) {
+	dailyIntake := DailyIntake{}
 	if err := repository.DB.Preload("MealItems").First(&dailyIntake, id).Error; err != nil {
 		return nil, err
 	}

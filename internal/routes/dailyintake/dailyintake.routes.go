@@ -15,6 +15,7 @@ func RegisterDailyIntakeRoutes(router *gin.RouterGroup, db *gorm.DB) {
 	dailyIntakeGroup := router.Group("/daily-intake")
 	{
 		dailyIntakeGroup.POST("/", handler.CreateDailyIntake)
+		dailyIntakeGroup.PATCH("/:id", handler.UpdateDailyIntake)
 		dailyIntakeGroup.GET("/:id", handler.GetDailyIntake)
 		dailyIntakeGroup.GET("/", handler.GetDailyIntakesList)
 	}

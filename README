@@ -21,10 +21,15 @@ calorie_deficit/
 │   ├── config/
 │   │   └── config.go             # Configuration logic
 │   ├── constants/
+│   │   ├── constants.go          # General constants
+│   │   ├── dailyIntake.go        # Daily intake related constants
+│   │   ├── errors.go             # Error definitions
 │   │   ├── logMessages.go        # Log message constants
-│   │   └── mcp.go                # Constants for MCP (if applicable)
+│   │   ├── mcp.go                # Constants for MCP
+│   │   └── time.go               # Time-related constants/utilities
 │   ├── handler/
-│   │   └── health.go             # Health check handler
+│   │   ├── health.go             # Health check handler
+│   │   └── response.go           # Response helpers
 │   ├── infrastructure/
 │   │   ├── database/
 │   │   │   └── postgres/
@@ -34,15 +39,21 @@ calorie_deficit/
 │   │       └── clients/
 │   │           ├── openai.go     # OpenAI client implementation
 │   │           └── openrouter.go # OpenRouter client implementation
-│   └── routes/
-│       └── routes.go             # API route definitions
+│   └── modules/
+│       └── dailyintake/          # Daily intake module
 ├── pkg/                          # Shared utilities
 │   └── logger/
 │       └── logger.go             # Logger initialization
+├── routes/                       # API route definitions
+│   ├── routes.go                 # Main routes file
+│   └── dailyintake/              # Daily intake route definitions
 ├── types/                        # Shared types
+│   └── error.go                  # Error types
 │   └── response.go               # Response types
 ├── utils/                        # Utility functions
 │   └── env.go                    # Environment variable utilities
+│   └── error.go                  # Error handling utilities
+│   └── parse.go                  # Parsing utilities
 └── tmp/                          # Temporary files
     ├── build-errors.log          # Build error logs
     └── main                      # Temporary build artifacts
@@ -58,6 +69,5 @@ calorie_deficit/
 
 ### Next Steps for Development
 - Implement the API endpoints 
-#### Daily Intake
-- Implement Daily Intake logging and retrieval.
-- Implement List, Update Meal and Delete Meal.
+#### Incorporate MPC function to dailyintake creation
+- Implement the logic for handling mpc create params and pass to dailyintake creation

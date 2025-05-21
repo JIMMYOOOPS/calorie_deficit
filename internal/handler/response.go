@@ -29,3 +29,13 @@ func ErrorResponse(context *gin.Context, err error) {
 		})
 	}
 }
+
+// SuccessResponse handles the success response for the API
+func SuccessResponse(context *gin.Context, data interface{}, meta *types.Meta) {
+	context.JSON(http.StatusOK, types.SuccessResponse[any]{
+		Code:    http.StatusOK,
+		Message: constants.LogMessages.General.Success,
+		Data:    data,
+		Meta:    meta,
+	})
+}

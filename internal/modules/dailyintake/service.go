@@ -65,6 +65,18 @@ func (service *Service) AddMealItemsToDailyIntake(dailyIntakeID uint, mealItems 
 	return addMealItemResponse, nil
 }
 
+func (service *Service) UpdateDailyIntake(id uint, params DailyIntakeUpdateServiceDTO) (*DailyIntake, error) {
+	// Call the repository method to update the daily intake
+	repositoryResponse, repositoryError := service.Repository.UpdateDailyIntake(id, &params)
+	if repositoryError != nil {
+		if errors.Is(repositoryError, gorm.ErrRecordNotFound) {
+			return nil, utils.HandleNotFoundError(repositoryError)
+		}
+		return nil, repositoryError
+	}
+	return repositoryResponse, nil
+}
+
 func (service *Service) GetDailyIntakeByDateAndMealType(userID uint, date string, mealType constants.MealType) (*DailyIntake, error) {
 	// Call the repository method to get the daily intake by date and meal type
 	dailyIntake, repositoryError := service.Repository.GetDailyIntakeByDateAndMealType(userID, date, mealType)
