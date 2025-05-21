@@ -29,18 +29,18 @@ type OpenAIConfig struct {
 	APIKey string
 }
 
-type OpenRouterAIConfig struct {
+type OpenRouterConfig struct {
 	APIKey string
 }
 
 var LLM_CONFIG = struct {
-	OpenAIConfig       OpenAIConfig
-	OpenRouterAIConfig OpenRouterAIConfig
+	OpenAIConfig     OpenAIConfig
+	OpenRouterConfig OpenRouterConfig
 }{
 	OpenAIConfig: OpenAIConfig{
 		APIKey: utils.GetEnv("OPENAI_API_KEY", "default_openai_api_key"),
 	},
-	OpenRouterAIConfig: OpenRouterAIConfig{
-		APIKey: utils.GetEnv("OPEN_ROUTER_AI_API_KEY", "default_openrouterai_api_key"),
+	OpenRouterConfig: OpenRouterConfig{
+		APIKey: utils.GetEnv("OPEN_ROUTER_API_KEY", "default_openrouter_api_key"),
 	},
 }

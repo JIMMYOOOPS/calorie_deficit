@@ -1,5 +1,5 @@
-// internal/modules/dailyintake/dto.go
-package dailyintake
+// internal/dto/dailyintake/dto.go
+package dailyintakedto
 
 import (
 	"calorie_deficit/internal/constants"
@@ -12,7 +12,7 @@ type MealItemRequestDTO struct {
 	Name        string                    `json:"name" binding:"required"`                       // Name of the meal item
 	Measurement constants.MeasurementType `json:"measurement" binding:"required,oneof=grams ml"` // Measurement is an enum for the measurement type
 	Quantity    float64                   `json:"quantity" binding:"required"`                   // Quantity of the meal item
-	Calorie     float64                   `json:"calorie" binding:"required"`                    // Calorie of the meal item
+	Calorie     float64                   `json:"calorie" binding:"omitempty"`                   // Calorie of the meal item
 }
 
 type MealItemResponseDTO struct {
@@ -27,10 +27,10 @@ type MealItemResponseDTO struct {
 type MealItemDTO struct {
 	// ID            uint                      `json:"id"`              // ID is the primary key of the meal item table
 	// DailyIntakeID uint                      `json:"daily_intake_id"` // DailyIntakeID is the foreign key to the daily intake table
-	Name        string                    `json:"name"`        // Name of the meal item
-	Measurement constants.MeasurementType `json:"measurement"` // Measurement is an enum for the measurement type
-	Quantity    float64                   `json:"quantity"`    // Quantity of the meal item
-	Calorie     float64                   `json:"calorie"`     // Calorie of the meal item
+	Name        string                    `json:"name"`                        // Name of the meal item
+	Measurement constants.MeasurementType `json:"measurement"`                 // Measurement is an enum for the measurement type
+	Quantity    float64                   `json:"quantity"`                    // Quantity of the meal item
+	Calorie     float64                   `json:"calorie" binding:"omitempty"` // Calorie of the meal item
 }
 
 // Create
@@ -68,15 +68,15 @@ type DailyIntakesListServiceDTO struct {
 }
 
 type DailyIntakeListDTO struct {
-	Items      []DailyIntake `json:"items"`      // Items is a slice of DailyIntakeCreateResponseDTO
-	Page       uint          `json:"page"`       // Page number for pagination
-	PageSize   uint          `json:"pageSize"`   // Page size for pagination
-	TotalCount uint          `json:"totalCount"` // Total number of items
+	Items      []DailyIntakeCreateResponseDTO `json:"items"`      // Items is a slice of DailyIntakeCreateResponseDTO
+	Page       uint                           `json:"page"`       // Page number for pagination
+	PageSize   uint                           `json:"pageSize"`   // Page size for pagination
+	TotalCount uint                           `json:"totalCount"` // Total number of items
 }
 
 type DailyIntakeListResponseDTO struct {
-	Items []DailyIntake `json:"items"` // Items is a slice of DailyIntakeCreateResponseDTO
-	Meta  *types.Meta   `json:"meta"`  // Meta is a pointer to the Meta struct
+	Items []DailyIntakeCreateResponseDTO `json:"items"` // Items is a slice of DailyIntakeCreateResponseDTO
+	Meta  *types.Meta                    `json:"meta"`  // Meta is a pointer to the Meta struct
 }
 
 // Update

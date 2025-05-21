@@ -12,15 +12,15 @@ import (
 
 // LLMClient defines the interface for all LLM clients
 type LLMClient interface {
-	CreateChatCompletion(ctx context.Context, input string) (string, error)
+	CreateChatCompletion(ctx context.Context, systemRoleInput, userRoleInput string) (string, error)
 }
 
 func InitializeClient(llm string) (LLMClient, error) {
 	// Init constants for readability
 	openAIName := constants.LLMs.OpenAI.Name
 	openAIAPIkey := config.LLM_CONFIG.OpenAIConfig.APIKey
-	openRouterAIName := constants.LLMs.OpenRouterAI.Name
-	openRouterAPIkey := config.LLM_CONFIG.OpenRouterAIConfig.APIKey
+	openRouterName := constants.LLMs.OpenRouter.Name
+	openRouterAPIkey := config.LLM_CONFIG.OpenRouterConfig.APIKey
 	clientInitMessage := constants.LogMessages.MCP.Client.ClientInitialized
 	invalidModelSpecified := constants.LogMessages.MCP.Client.InvalidModelSpecified
 
@@ -30,7 +30,7 @@ func InitializeClient(llm string) (LLMClient, error) {
 		client := clients.NewOpenAIClient(apiKey)
 		logger.Logger.Infof(clientInitMessage, llm)
 		return client, nil
-	case openRouterAIName:
+	case openRouterName:
 		apiKey := openRouterAPIkey
 		client := clients.NewOpenRouterClient(apiKey)
 		logger.Logger.Infof(clientInitMessage, llm)

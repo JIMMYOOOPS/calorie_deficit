@@ -3,11 +3,16 @@ package dailyintake
 
 import (
 	"calorie_deficit/internal/constants"
+	dailyintakedto "calorie_deficit/internal/dto/dailyintake"
 	"calorie_deficit/internal/utils"
 
 	"errors"
 
 	"gorm.io/gorm"
+)
+
+type (
+	MealItemDTO = dailyintakedto.MealItemDTO
 )
 
 type Service struct {
@@ -107,14 +112,14 @@ func (service *Service) GetDailyIntakesList(params DailyIntakesListServiceDTO) (
 	if repositoryError != nil {
 		if errors.Is(repositoryError, gorm.ErrRecordNotFound) {
 			return DailyIntakeListDTO{
-				Items:      []DailyIntake{},
+				Items:      []DailyIntakeCreateResponseDTO{},
 				Page:       params.Page,
 				PageSize:   params.PageSize,
 				TotalCount: 0,
 			}, utils.HandleNotFoundError(repositoryError)
 		}
 		return DailyIntakeListDTO{
-			Items:      []DailyIntake{},
+			Items:      []DailyIntakeCreateResponseDTO{},
 			Page:       params.Page,
 			PageSize:   params.PageSize,
 			TotalCount: 0,

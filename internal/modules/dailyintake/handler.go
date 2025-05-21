@@ -2,25 +2,42 @@
 package dailyintake
 
 import (
+	dailyintakeapplication "calorie_deficit/internal/application/dailyintake"
 	"calorie_deficit/internal/constants"
+	dailyintakedto "calorie_deficit/internal/dto/dailyintake"
 	"calorie_deficit/internal/handler"
 	"calorie_deficit/internal/pkg/logger"
 	"calorie_deficit/internal/types"
 	"calorie_deficit/internal/utils"
+
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// Handler struct to hold the database connection
+type (
+	DailyIntakeUpdateRequestDTO = dailyintakedto.DailyIntakeUpdateRequestDTO
+)
+
+// DailyIntakeCreateRequestDTO represents the request body for creating a daily intake
+func MapMealItemsToDTO(items []MealItemRequestDTO) []MealItemDTO {
+	result := make([]MealItemDTO, len(items))
+	for i, item := range items {
+		result[i] = MealItemDTO(item) // if fields match exactly
+	}
+	return result
+}
+
 type Handler struct {
-	Service *Service
+	Service               *Service
+	MCPDailyIntakeService *dailyintakeapplication.MCPDailyIntakeService
 }
 
 // NewHandler initializes a new Handler with the provided database connection
-func NewHandler(service *Service) *Handler {
+func NewHandler(service *Service, mcpDailyIntakeService *dailyintakeapplication.MCPDailyIntakeService) *Handler {
 	return &Handler{
-		Service: service,
+		Service:               service,
+		MCPDailyIntakeService: mcpDailyIntakeService,
 	}
 }
 
@@ -32,36 +49,6 @@ var (
 	}
 )
 
-// DailyIntakeCreateRequestDTO represents the request body for creating a daily intake
-func mapMealItemsToDTO(items []MealItemRequestDTO) []MealItemDTO {
-	result := make([]MealItemDTO, len(items))
-	for i, item := range items {
-		result[i] = MealItemDTO(item) // if fields match exactly
-	}
-	return result
-}
-
-// DailyIntakeCreateResponseDTO represents the response body for creating a daily intake
-func mapMealItemsToResponseDTO(items []MealItem) []MealItemResponseDTO {
-	result := make([]MealItemResponseDTO, len(items))
-	for i, item := range items {
-		result[i] = MealItemResponseDTO(item) // if fields match exactly
-	}
-	return result
-}
-
-func mapDailyIntakeToResponseDTO(intake DailyIntake) DailyIntakeCreateResponseDTO {
-	return DailyIntakeCreateResponseDTO{
-		ID:        intake.ID,
-		UserID:    intake.UserID,
-		Date:      intake.Date.Format(constants.IsoFormatMilSec),
-		MealType:  intake.MealType,
-		MealItems: mapMealItemsToResponseDTO(intake.MealItems),
-		CreatedAt: intake.CreatedAt.Format(constants.IsoFormatMilSec),
-		UpdatedAt: intake.UpdatedAt.Format(constants.IsoFormatMilSec),
-	}
-}
-
 // CreateDailyIntakeHandler handles the creation of a new daily intake record
 func (h *Handler) CreateDailyIntake(context *gin.Context) {
 	// Bind the request body to a struct
@@ -72,11 +59,22 @@ func (h *Handler) CreateDailyIntake(context *gin.Context) {
 		return
 	}
 	// Validate the request
-	serviceRequest := DailyIntakeCreateServiceDTO{
-		UserID:    createReq.UserID,
-		Date:      createReq.Date,
-		MealType:  createReq.MealType,
-		MealItems: mapMealItemsToDTO(createReq.MealItems),
+	mealItems := make([]dailyintakedto.MealItemRequestDTO, len(createReq.MealItems))
+	for i, item := range createReq.MealItems {
+		mealItems[i] = dailyintakedto.MealItemRequestDTO(item)
+	}
+	// serviceRequest := DailyIntakeCreateServiceDTO{
+	// 	UserID:    createReq.UserID,
+	// 	Date:      createReq.Date,
+	// 	MealType:  createReq.MealType,
+	// 	MealItems: MapMealItemsToDTO(mealItems),
+	// }
+
+	serviceRequest, mcpDailyIntakeServiceError := h.MCPDailyIntakeService.GetMealCalories(createReq)
+	if mcpDailyIntakeServiceError != nil {
+		logger.Logger.Error(mcpDailyIntakeServiceError.Error())
+		context.JSON(400, types.AppError(errInvalidRequest))
+		return
 	}
 	// Call the service layer to create the daily intake
 	serviceResponse, serviceError := h.Service.CreateDailyIntake(serviceRequest)
@@ -85,7 +83,7 @@ func (h *Handler) CreateDailyIntake(context *gin.Context) {
 		return
 	}
 
-	handler.SuccessResponse(context, mapDailyIntakeToResponseDTO(*serviceResponse), nil)
+	handler.SuccessResponse(context, MapDailyIntakeToResponseDTO(*serviceResponse), nil)
 }
 
 // UpdateDailyIntake handles the update of an existing daily intake record
@@ -114,7 +112,7 @@ func (h *Handler) UpdateDailyIntake(context *gin.Context) {
 		handler.ErrorResponse(context, serviceError)
 		return
 	}
-	handler.SuccessResponse(context, mapDailyIntakeToResponseDTO(*serviceResponse), nil)
+	handler.SuccessResponse(context, MapDailyIntakeToResponseDTO(*serviceResponse), nil)
 }
 
 // GetDailyIntake use the ID to get the daily intake
@@ -134,7 +132,7 @@ func (h *Handler) GetDailyIntake(context *gin.Context) {
 		return
 	}
 	// Map the service response to the response DTO
-	handler.SuccessResponse(context, mapDailyIntakeToResponseDTO(*serviceResponse), nil)
+	handler.SuccessResponse(context, MapDailyIntakeToResponseDTO(*serviceResponse), nil)
 }
 
 // GetDailyIntakesList handles the retrieval of daily intakes for all daily intakes, the handler can take a query parameter of user_id and date
@@ -187,11 +185,11 @@ func (h *Handler) GetDailyIntakesList(context *gin.Context) {
 		items[i] = DailyIntakeCreateResponseDTO{
 			ID:        intake.ID,
 			UserID:    intake.UserID,
-			Date:      intake.Date.Format(constants.IsoFormatMilSec),
+			Date:      intake.Date,
 			MealType:  intake.MealType,
-			MealItems: mapMealItemsToResponseDTO(intake.MealItems),
-			CreatedAt: intake.CreatedAt.Format(constants.IsoFormatMilSec),
-			UpdatedAt: intake.UpdatedAt.Format(constants.IsoFormatMilSec),
+			MealItems: intake.MealItems,
+			CreatedAt: intake.CreatedAt,
+			UpdatedAt: intake.UpdatedAt,
 		}
 	}
 

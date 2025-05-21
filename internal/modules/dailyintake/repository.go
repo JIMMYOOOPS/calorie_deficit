@@ -3,13 +3,61 @@ package dailyintake
 
 import (
 	"calorie_deficit/internal/constants"
+	dailyintakedto "calorie_deficit/internal/dto/dailyintake"
 	"time"
 
 	"gorm.io/gorm"
 )
 
+// DailyIntake represents the daily intake model
+type (
+	DailyIntakeCreateServiceDTO  = dailyintakedto.DailyIntakeCreateServiceDTO
+	DailyIntakeUpdateServiceDTO  = dailyintakedto.DailyIntakeUpdateServiceDTO
+	DailyIntakesListServiceDTO   = dailyintakedto.DailyIntakesListServiceDTO
+	DailyIntakeListDTO           = dailyintakedto.DailyIntakeListDTO
+	MealItemRequestDTO           = dailyintakedto.MealItemRequestDTO
+	MealItemResponseDTO          = dailyintakedto.MealItemResponseDTO
+	DailyIntakeCreateResponseDTO = dailyintakedto.DailyIntakeCreateResponseDTO
+	DailyIntakeCreateRequestDTO  = dailyintakedto.DailyIntakeCreateRequestDTO
+)
+
 type Repository struct {
 	DB *gorm.DB
+}
+
+func MapMealItemsToResponseDTO(items []MealItem) []MealItemResponseDTO {
+	result := make([]MealItemResponseDTO, len(items))
+	for i, item := range items {
+		result[i] = MealItemResponseDTO{
+			ID:            item.ID,
+			DailyIntakeID: item.DailyIntakeID,
+			Name:          item.Name,
+			Measurement:   item.Measurement,
+			Quantity:      item.Quantity,
+			Calorie:       item.Calorie,
+		}
+	}
+	return result
+}
+
+func MapDailyIntakeToResponseDTO(intake DailyIntake) DailyIntakeCreateResponseDTO {
+	return DailyIntakeCreateResponseDTO{
+		ID:        intake.ID,
+		UserID:    intake.UserID,
+		Date:      intake.Date.Format(constants.IsoFormatMilSec),
+		MealType:  intake.MealType,
+		MealItems: MapMealItemsToResponseDTO(intake.MealItems),
+		CreatedAt: intake.CreatedAt.Format(constants.IsoFormatMilSec),
+		UpdatedAt: intake.UpdatedAt.Format(constants.IsoFormatMilSec),
+	}
+}
+
+func MapDailyIntakesToResponseDTOs(intakes []DailyIntake) []DailyIntakeCreateResponseDTO {
+	result := make([]DailyIntakeCreateResponseDTO, len(intakes))
+	for i, intake := range intakes {
+		result[i] = MapDailyIntakeToResponseDTO(intake)
+	}
+	return result
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -192,8 +240,11 @@ func (repository *Repository) GetDailyIntakesList(params DailyIntakesListService
 		}, err
 	}
 
+	// Map the result to the response DTO
+	dailyIntakeList := MapDailyIntakesToResponseDTOs(dailyIntakes)
+
 	return DailyIntakeListDTO{
-		Items:      dailyIntakes,
+		Items:      dailyIntakeList,
 		Page:       params.Page,
 		PageSize:   params.PageSize,
 		TotalCount: uint(totalCount),

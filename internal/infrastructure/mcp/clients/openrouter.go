@@ -3,6 +3,9 @@
 package clients
 
 import (
+	"calorie_deficit/internal/constants"
+	"calorie_deficit/internal/pkg/logger"
+
 	"context"
 
 	openRouter "github.com/revrost/go-openrouter"
@@ -19,21 +22,29 @@ func NewOpenRouterClient(apiKey string) *OpenRouterClient {
 	}
 }
 
-// CreateChatCompletion sends a chat completion request to the OpenRouter API
-func (openRouterClient *OpenRouterClient) CreateChatCompletion(context context.Context, input string) (string, error) {
+// CreateChatCompletion sends a chat completion request to the OpenRouter API and returns the json response as a string
+func (openRouterClient *OpenRouterClient) CreateChatCompletion(ctx context.Context, systemRoleInput, userRoleInput string) (string, error) {
 	response, err := openRouterClient.client.CreateChatCompletion(
-		context,
+		ctx,
 		openRouter.ChatCompletionRequest{
-			Model: "qwen/qwen3-0.6b-04-28:free", // current free model can be switched to any other model
+			Model: constants.LLMs.OpenRouter.Models.Google[0], // current free model can be switched to any other model
 			Messages: []openRouter.ChatCompletionMessage{
 				{
-					Role:    openRouter.ChatMessageRoleUser,
-					Content: openRouter.Content{Text: input},
+					Role:    openRouter.ChatMessageRoleSystem,
+					Content: openRouter.Content{Text: systemRoleInput},
 				},
+				{
+					Role:    openRouter.ChatMessageRoleUser,
+					Content: openRouter.Content{Text: userRoleInput},
+				},
+			},
+			ResponseFormat: &openRouter.ChatCompletionResponseFormat{
+				Type: openRouter.ChatCompletionResponseFormatTypeJSONObject,
 			},
 		},
 	)
 	if err != nil {
+		logger.Logger.Errorf("Error calling OpenRouter API: %v", err)
 		return "", err
 	}
 	return response.Choices[0].Message.Content.Text, nil

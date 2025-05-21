@@ -65,7 +65,7 @@ calorie_deficit/
 ### POSTGRESQL using Docker Compose
 - ``docker-compose -f docker/docker-compose.yml up``: This command will start a PostgreSQL database in a Docker container.
 ### OPEN_ROUTER_AI API KEY
-- Obtain an API key from OpenRouterAI and set it in the `.env` file as `OPEN_ROUTER_AI_API_KEY`.
+- Obtain an API key from OpenRouter and set it in the `.env` file as `OPEN_ROUTER_AI_API_KEY`.
 
 ### Next Steps for Development
 - Implement the API endpoints 

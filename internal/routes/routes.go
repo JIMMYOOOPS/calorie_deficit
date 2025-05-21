@@ -2,6 +2,7 @@ package routes
 
 import (
 	"calorie_deficit/internal/handler"
+	"calorie_deficit/internal/infrastructure/mcp"
 	"calorie_deficit/internal/routes/dailyintake"
 	"calorie_deficit/internal/types"
 
@@ -10,7 +11,7 @@ import (
 )
 
 // RegisterRoutes initializes the Gin router and sets up the routes for the application
-func RegisterRoutes(router *gin.Engine, db *gorm.DB) {
+func RegisterRoutes(router *gin.Engine, db *gorm.DB, llmClient mcp.LLMClient) {
 	// api version 1
 	api := router.Group("/api")
 	// version 1 group
@@ -25,7 +26,7 @@ func RegisterRoutes(router *gin.Engine, db *gorm.DB) {
 		v1.GET("/healthz", handler.HealthCheckHandler(db))
 
 		// import daily intake routes
-		dailyintake.RegisterDailyIntakeRoutes(v1, db)
+		dailyintake.RegisterDailyIntakeRoutes(v1, db, llmClient)
 
 	}
 }

@@ -26,18 +26,18 @@ func main() {
 		panic(migrateError)
 	}
 	// Initialize MCP client
-	_, mcpClientError := mcp.InitializeClient(constants.LLMs.OpenRouterAI.Name)
+	client, mcpClientError := mcp.InitializeClient(constants.LLMs.OpenRouter.Name)
 	if mcpClientError != nil {
 		panic(mcpClientError)
 	}
 	if mcpClientError != nil {
-		logger.Logger.Errorf(constants.LogMessages.MCP.Client.ClientInitFailed, constants.LLMs.OpenRouterAI.Name)
+		logger.Logger.Errorf(constants.LogMessages.MCP.Client.ClientInitFailed, constants.LLMs.OpenRouter.Name)
 		panic(mcpClientError)
 	}
 	// Create a new Gin router
 	router := gin.Default()
 	// Register the routes with the router
-	routes.RegisterRoutes(router, db)
+	routes.RegisterRoutes(router, db, client)
 
 	// Start the server on port 8080
 	router.Run(config.SERVER_PORT)
