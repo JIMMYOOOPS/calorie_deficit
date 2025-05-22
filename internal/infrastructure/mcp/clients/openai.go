@@ -16,16 +16,12 @@ func NewOpenAIClient(apiKey string) *OpenAIClient {
 	}
 }
 
-func (oac *OpenAIClient) CreateChatCompletion(ctx context.Context, systemRoleInput, userRoleInput string) (string, error) {
+func (oac *OpenAIClient) CreateChatCompletion(ctx context.Context, userRoleInput string, schema any) (string, error) {
 	response, err := oac.client.CreateChatCompletion(
 		ctx,
 		openai.ChatCompletionRequest{
 			Model: "gpt-3.5-turbo",
 			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleSystem,
-					Content: systemRoleInput,
-				},
 				{
 					Role:    openai.ChatMessageRoleUser,
 					Content: userRoleInput,

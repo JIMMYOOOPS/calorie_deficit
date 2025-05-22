@@ -12,7 +12,7 @@ import (
 
 // LLMClient defines the interface for all LLM clients
 type LLMClient interface {
-	CreateChatCompletion(ctx context.Context, systemRoleInput, userRoleInput string) (string, error)
+	CreateChatCompletion(ctx context.Context, userRoleInput string, schema any) (string, error)
 }
 
 func InitializeClient(llm string) (LLMClient, error) {

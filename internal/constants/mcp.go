@@ -6,6 +6,7 @@ type LLM struct {
 	Name   string
 	Models struct {
 		Google []string
+		Meta   []string
 	}
 }
 
@@ -21,8 +22,10 @@ var LLMs = struct {
 		Name: "openRouter",
 		Models: struct {
 			Google []string
+			Meta   []string
 		}{
-			Google: []string{"google/gemma-3n-e4b-it:free"},
+			Google: []string{}, // select models that support Structured Output response
+			Meta:   []string{"meta-llama/llama-4-maverick:free", "meta-llama/llama-3.3-8b-instruct:free"},
 		},
 	},
 }

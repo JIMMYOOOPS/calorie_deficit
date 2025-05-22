@@ -33,24 +33,48 @@ func (s *MCPDailyIntakeService) GetMealCalories(params DailyIntakeCreateRequestD
 		mealItemsDTO[i] = MealItemDTO(item)
 	}
 	// Form the prompt for the LLM client
-	// stringify the meal items
 	jsonMealItemsDTO, stringifyError := json.Marshal(mealItemsDTO)
 	if stringifyError != nil {
 		return DailyIntakeCreateServiceDTO{}, stringifyError
 	}
-
 	// The prompt should be a string that describes the meal items and asks for their calorie count
-	systemRoleInput := `You are a nutritionist. I will provide you with a list of meal items and their measurements. Please provide the calorie count for each item in the list.`
 	userRoleInput := `Here is the list of meal items:
 		` + string(jsonMealItemsDTO)
-	logger.Logger.Infof("Prompt for LLM: %s, %s", systemRoleInput, userRoleInput)
-	promptResponse, err := s.MCPClient.CreateChatCompletion(context.Background(), systemRoleInput, userRoleInput)
+	schema := map[string]interface{}{
+		"type": "array",
+		"items": map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"name": map[string]interface{}{
+					"type":        "string",
+					"description": "Name of the meal item",
+				},
+				"measurement": map[string]interface{}{
+					"type":        "string",
+					"description": "the measurement of the meal item",
+				},
+				"calorie": map[string]interface{}{
+					"type":        "number",
+					"description": "the calorie count of the meal item",
+				},
+				"quantity": map[string]interface{}{
+					"type":        "number",
+					"description": "the quantity of the meal item",
+				},
+			},
+			"required":             []string{"name", "measurement", "calorie", "quantity"},
+			"additionalProperties": false,
+		},
+		"description": "A list of meal items with their calorie counts",
+	}
+
+	promptResponse, err := s.MCPClient.CreateChatCompletion(context.Background(), userRoleInput, schema)
 	if err != nil {
 		logger.Logger.Errorf("Error calling LLM client: %v", err)
 		return DailyIntakeCreateServiceDTO{}, err
 	}
 	// Parse the response from the LLM client
-	var mealCaloriesResponse MealItemDTO
+	var mealCaloriesResponse []MealItemDTO
 	err = json.Unmarshal([]byte(promptResponse), &mealCaloriesResponse)
 	if err != nil {
 		logger.Logger.Errorf("Error unmarshalling LLM response: %v", err)
@@ -62,7 +86,7 @@ func (s *MCPDailyIntakeService) GetMealCalories(params DailyIntakeCreateRequestD
 		UserID:    params.UserID,
 		Date:      params.Date,
 		MealType:  params.MealType,
-		MealItems: []MealItemDTO{mealCaloriesResponse},
+		MealItems: mealCaloriesResponse,
 	}
 	logger.Logger.Infof("Meal calories response DTO: %v", mealCaloriesResponseDTO)
 	return mealCaloriesResponseDTO, nil

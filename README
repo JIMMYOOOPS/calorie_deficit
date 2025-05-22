@@ -70,4 +70,4 @@ calorie_deficit/
 ### Next Steps for Development
 - Implement the API endpoints 
 #### Incorporate MPC function to dailyintake creation
-- Implement the logic for handling mpc create params and pass to dailyintake creation
+- Implement the logic for handling mcp create params and pass to dailyintake creation
