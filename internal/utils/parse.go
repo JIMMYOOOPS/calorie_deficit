@@ -21,7 +21,7 @@ func ParseStringToUint(value string) (uint, error) {
 
 // ParseStringToDate parses a string to date and returns the value or error.
 func ParseStringToDate(value string) (time.Time, error) {
-	parsedDate, err := time.Parse(constants.IsoFormatMilSec, value)
+	parsedDate, err := time.Parse(constants.IsoFormatDate, value)
 	if err != nil {
 		logger.Logger.Error(err.Error())
 		return time.Time{}, err // Return empty string if the conversion fails

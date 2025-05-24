@@ -79,6 +79,13 @@ type DailyIntakeListResponseDTO struct {
 	Meta  *types.Meta                    `json:"meta"`  // Meta is a pointer to the Meta struct
 }
 
+type DailyIntakeListResponseSuccessDTO struct {
+	Code    int                          `json:"code"`
+	Message string                       `json:"message"`
+	Data    []DailyIntakeListResponseDTO `json:"data,omitempty"`
+	Meta    *types.Meta                  `json:"meta,omitempty"` // Pointer to Meta struct
+}
+
 // Update
 // TODO: Will update according to requirements
 type DailyIntakeUpdateRequestDTO struct {

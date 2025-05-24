@@ -1,0 +1,351 @@
+basePath: /api/v1
+definitions:
+  constants.MealType:
+    enum:
+    - breakfast
+    - brunch
+    - lunch
+    - afternoonSnack
+    - dinner
+    - lateNightSnack
+    - drinks
+    - other
+    type: string
+    x-enum-comments:
+      Drinks: definitely designed for Taiwanese people
+    x-enum-varnames:
+    - Breakfast
+    - Brunch
+    - Lunch
+    - AfternoonSnack
+    - Dinner
+    - LateNightSnack
+    - Drinks
+    - Other
+  constants.MeasurementType:
+    enum:
+    - grams
+    - ml
+    type: string
+    x-enum-varnames:
+    - Grams
+    - ML
+  dailyintake.DailyIntakeCreateRequestDTO:
+    properties:
+      date:
+        description: Date in ISO 8601
+        type: string
+      meal_items:
+        description: MealItems is a slice of MealItem
+        items:
+          $ref: '#/definitions/dailyintakedto.MealItemRequestDTO'
+        type: array
+      meal_type:
+        allOf:
+        - $ref: '#/definitions/constants.MealType'
+        description: MealType is an enum for the meal type
+        enum:
+        - breakfast
+        - lunch
+        - dinner
+        - snack
+      user_id:
+        type: integer
+    required:
+    - date
+    - meal_items
+    - meal_type
+    - user_id
+    type: object
+  dailyintake.DailyIntakeCreateResponseDTO:
+    properties:
+      created_at:
+        description: CreatedAt in ISO 8601 format 2025-05-18T02:55:46.844Z
+        type: string
+      date:
+        description: Date in ISO 8601 format 2025-05-18T02:55:46.844Z
+        type: string
+      id:
+        description: ID is the primary key of the daily intake table
+        type: integer
+      meal_items:
+        description: MealItems is a slice of MealItem
+        items:
+          $ref: '#/definitions/dailyintakedto.MealItemResponseDTO'
+        type: array
+      meal_type:
+        allOf:
+        - $ref: '#/definitions/constants.MealType'
+        description: MealType is an enum for the meal type
+      updated_at:
+        description: UpdatedAt in ISO 8601 format 2025-05-18T02:55:46.844Z
+        type: string
+      user_id:
+        description: UserID is the foreign key to the user table
+        type: integer
+    type: object
+  dailyintake.DailyIntakeUpdateRequestDTO:
+    properties:
+      meal_items:
+        description: |-
+          UserID    uint                 `json:"user_id"`                                             // UserID is the foreign key to the user table
+          Date      string               `json:"date" binding:"datetime=2006-01-02T15:04:05.000Z"`       // Date in ISO 8601
+          MealType  constants.MealType   `json:"meal_type" binding:"oneof=breakfast lunch dinner snack"` // MealType is an enum for the meal type
+        items:
+          $ref: '#/definitions/dailyintakedto.MealItemResponseDTO'
+        type: array
+    required:
+    - meal_items
+    type: object
+  dailyintakedto.DailyIntakeCreateResponseDTO:
+    properties:
+      created_at:
+        description: CreatedAt in ISO 8601 format 2025-05-18T02:55:46.844Z
+        type: string
+      date:
+        description: Date in ISO 8601 format 2025-05-18T02:55:46.844Z
+        type: string
+      id:
+        description: ID is the primary key of the daily intake table
+        type: integer
+      meal_items:
+        description: MealItems is a slice of MealItem
+        items:
+          $ref: '#/definitions/dailyintakedto.MealItemResponseDTO'
+        type: array
+      meal_type:
+        allOf:
+        - $ref: '#/definitions/constants.MealType'
+        description: MealType is an enum for the meal type
+      updated_at:
+        description: UpdatedAt in ISO 8601 format 2025-05-18T02:55:46.844Z
+        type: string
+      user_id:
+        description: UserID is the foreign key to the user table
+        type: integer
+    type: object
+  dailyintakedto.DailyIntakeListResponseDTO:
+    properties:
+      items:
+        description: Items is a slice of DailyIntakeCreateResponseDTO
+        items:
+          $ref: '#/definitions/dailyintakedto.DailyIntakeCreateResponseDTO'
+        type: array
+      meta:
+        allOf:
+        - $ref: '#/definitions/types.Meta'
+        description: Meta is a pointer to the Meta struct
+    type: object
+  dailyintakedto.DailyIntakeListResponseSuccessDTO:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/dailyintakedto.DailyIntakeListResponseDTO'
+        type: array
+      message:
+        type: string
+      meta:
+        allOf:
+        - $ref: '#/definitions/types.Meta'
+        description: Pointer to Meta struct
+    type: object
+  dailyintakedto.MealItemRequestDTO:
+    properties:
+      calorie:
+        description: Calorie of the meal item
+        type: number
+      measurement:
+        allOf:
+        - $ref: '#/definitions/constants.MeasurementType'
+        description: Measurement is an enum for the measurement type
+        enum:
+        - grams
+        - ml
+      name:
+        description: Name of the meal item
+        type: string
+      quantity:
+        description: Quantity of the meal item
+        type: number
+    required:
+    - measurement
+    - name
+    - quantity
+    type: object
+  dailyintakedto.MealItemResponseDTO:
+    properties:
+      calorie:
+        description: Calorie of the meal item
+        type: number
+      daily_intake_id:
+        description: DailyIntakeID is the foreign key to the daily intake table
+        type: integer
+      id:
+        description: ID is the primary key of the meal item table
+        type: integer
+      measurement:
+        allOf:
+        - $ref: '#/definitions/constants.MeasurementType'
+        description: Measurement is an enum for the measurement type
+      name:
+        description: Name of the meal item
+        type: string
+      quantity:
+        description: Quantity of the meal item
+        type: number
+    type: object
+  types.AppError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  types.Meta:
+    properties:
+      page:
+        type: integer
+      page_size:
+        type: integer
+      total_count:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for tracking calorie intake and expenditure
+  title: Calorie Deficit API
+  version: "1.0"
+paths:
+  /daily-intake:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of daily intakes
+      parameters:
+      - description: Page number
+        in: query
+        name: page
+        type: integer
+      - description: Page size
+        in: query
+        name: page_size
+        type: integer
+      - description: User ID
+        in: query
+        name: user_id
+        type: integer
+      - description: Date in YYYY-MM-DD format
+        in: query
+        name: date
+        type: string
+      - description: Meal type (breakfast, brunch, lunch, afternoonSnack, dinner,
+          lateNightSnack)
+        in: query
+        name: meal_type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dailyintakedto.DailyIntakeListResponseSuccessDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.AppError'
+      summary: Get daily intakes list
+      tags:
+      - daily-intake
+    post:
+      consumes:
+      - application/json
+      description: Create a new daily intake record
+      parameters:
+      - description: Daily Intake Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dailyintake.DailyIntakeCreateRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dailyintake.DailyIntakeCreateResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.AppError'
+      summary: Create a daily intake
+      tags:
+      - daily-intake
+  /daily-intake/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a daily intake by ID
+      parameters:
+      - description: Daily Intake ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dailyintake.DailyIntakeCreateResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/types.AppError'
+      summary: Get a daily intake
+      tags:
+      - daily-intake
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing daily intake record
+      parameters:
+      - description: Daily Intake ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Daily Intake Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dailyintake.DailyIntakeUpdateRequestDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dailyintake.DailyIntakeCreateResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/types.AppError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/types.AppError'
+      summary: Update a daily intake
+      tags:
+      - daily-intake
+swagger: "2.0"

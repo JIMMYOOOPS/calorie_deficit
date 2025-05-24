@@ -1,3 +1,9 @@
+// @title           Calorie Deficit API
+// @version         1.0
+// @description     API for tracking calorie intake and expenditure
+// @host            localhost:8080
+// @BasePath        /api/v1
+
 package main
 
 import (
@@ -6,6 +12,7 @@ import (
 	"calorie_deficit/internal/infrastructure/database/postgres"
 	"calorie_deficit/internal/infrastructure/database/postgres/migrations"
 	"calorie_deficit/internal/infrastructure/mcp"
+	_ "calorie_deficit/internal/modules/dailyintake" // Import dailyintake module to ensure its swagger documentation is generated
 	"calorie_deficit/internal/pkg/logger"
 	"calorie_deficit/internal/routes"
 

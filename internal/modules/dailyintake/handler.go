@@ -50,6 +50,16 @@ var (
 )
 
 // CreateDailyIntakeHandler handles the creation of a new daily intake record
+// CreateDailyIntake godoc
+// @Summary      Create a daily intake
+// @Description  Create a new daily intake record
+// @Tags         daily-intake
+// @Accept       json
+// @Produce      json
+// @Param        data  body  DailyIntakeCreateRequestDTO  true  "Daily Intake Data"
+// @Success      200   {object}  DailyIntakeCreateResponseDTO
+// @Failure      400   {object}  types.AppError
+// @Router       /daily-intake [post]
 func (h *Handler) CreateDailyIntake(context *gin.Context) {
 	// Bind the request body to a struct
 	var createReq DailyIntakeCreateRequestDTO
@@ -63,12 +73,6 @@ func (h *Handler) CreateDailyIntake(context *gin.Context) {
 	for i, item := range createReq.MealItems {
 		mealItems[i] = dailyintakedto.MealItemRequestDTO(item)
 	}
-	// serviceRequest := DailyIntakeCreateServiceDTO{
-	// 	UserID:    createReq.UserID,
-	// 	Date:      createReq.Date,
-	// 	MealType:  createReq.MealType,
-	// 	MealItems: MapMealItemsToDTO(mealItems),
-	// }
 
 	serviceRequest, mcpDailyIntakeServiceError := h.MCPDailyIntakeService.GetMealCalories(createReq)
 	if mcpDailyIntakeServiceError != nil {
@@ -87,6 +91,17 @@ func (h *Handler) CreateDailyIntake(context *gin.Context) {
 }
 
 // UpdateDailyIntake handles the update of an existing daily intake record
+// @Summary      Update a daily intake
+// @Description  Update an existing daily intake record
+// @Tags         daily-intake
+// @Accept       json
+// @Produce      json
+// @Param        id    path  int64  true  "Daily Intake ID"
+// @Param        data  body  DailyIntakeUpdateRequestDTO  true  "Daily Intake Data"
+// @Success      200   {object}  DailyIntakeCreateResponseDTO
+// @Failure      400   {object}  types.AppError
+// @Failure      404   {object}  types.AppError
+// @Router       /daily-intake/{id} [patch]
 func (h *Handler) UpdateDailyIntake(context *gin.Context) {
 	// Use the ID to get the daily intake from parameters
 	idString := context.Param("id")
@@ -116,6 +131,16 @@ func (h *Handler) UpdateDailyIntake(context *gin.Context) {
 }
 
 // GetDailyIntake use the ID to get the daily intake
+// @Summary      Get a daily intake
+// @Description  Get a daily intake by ID
+// @Tags         daily-intake
+// @Accept       json
+// @Produce      json
+// @Param        id  path  int64  true  "Daily Intake ID"
+// @Success      200   {object}  DailyIntakeCreateResponseDTO
+// @Failure      400   {object}  types.AppError
+// @Failure      404   {object}  types.AppError
+// @Router       /daily-intake/{id} [get]
 func (h *Handler) GetDailyIntake(context *gin.Context) {
 	// Use the ID to get the daily intake from parameters
 	idString := context.Param("id")
@@ -136,6 +161,19 @@ func (h *Handler) GetDailyIntake(context *gin.Context) {
 }
 
 // GetDailyIntakesList handles the retrieval of daily intakes for all daily intakes, the handler can take a query parameter of user_id and date
+// @Summary      Get daily intakes list
+// @Description  Get a list of daily intakes
+// @Tags         daily-intake
+// @Accept       json
+// @Produce      json
+// @Param        page       query  int  false  "Page number"
+// @Param        page_size  query  int  false  "Page size"
+// @Param        user_id    query  int  false  "User ID"
+// @Param        date       query  string  false  "Date in YYYY-MM-DD format"
+// @Param        meal_type  query  string  false  "Meal type (breakfast, brunch, lunch, afternoonSnack, dinner, lateNightSnack)"
+// @Success      200   {object}  dailyintakedto.DailyIntakeListResponseSuccessDTO
+// @Failure      400   {object}  types.AppError
+// @Router       /daily-intake [get]
 func (h *Handler) GetDailyIntakesList(context *gin.Context) {
 	// Get pagination parameters
 	pageString := context.DefaultQuery("page", constants.DefaultPageNumber)
@@ -182,15 +220,7 @@ func (h *Handler) GetDailyIntakesList(context *gin.Context) {
 	}
 	items := make([]DailyIntakeCreateResponseDTO, len(serviceResponse.Items))
 	for i, intake := range serviceResponse.Items {
-		items[i] = DailyIntakeCreateResponseDTO{
-			ID:        intake.ID,
-			UserID:    intake.UserID,
-			Date:      intake.Date,
-			MealType:  intake.MealType,
-			MealItems: intake.MealItems,
-			CreatedAt: intake.CreatedAt,
-			UpdatedAt: intake.UpdatedAt,
-		}
+		items[i] = DailyIntakeCreateResponseDTO(intake)
 	}
 
 	handler.SuccessResponse(context, items, &types.Meta{
