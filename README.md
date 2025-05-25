@@ -23,7 +23,7 @@ This application interacts with several external providers to deliver its featur
 - **Containerization (Docker):**
   - The app and its dependencies (like PostgreSQL) are containerized for consistent development and deployment.
 
-![Architecture Overview](https://raw.githubusercontent.com/jimmy/calorie_deficit/main/docs/images/architecture.png)
+![Architecture Overview](https://raw.githubusercontent.com/JIMMYOOOPS/calorie_deficit/main/docs/images/architecture.png)
 
 ### Folder Structure
 
