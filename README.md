@@ -23,11 +23,7 @@ This application interacts with several external providers to deliver its featur
 - **Containerization (Docker):**
   - The app and its dependencies (like PostgreSQL) are containerized for consistent development and deployment.
 
-flowchart LR
-User -->|HTTP API| App
-App -->|SQL| PostgreSQL[(PostgreSQL DB)]
-App -->|API| OpenRouterAI[(OpenRouter AI)]
-App -.->|Docker Compose| Docker[(Docker)]
+![Architecture Overview](https://raw.githubusercontent.com/jimmy/calorie_deficit/main/docs/images/architecture.png)
 
 ### Folder Structure
 
