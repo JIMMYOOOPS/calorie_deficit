@@ -4,6 +4,7 @@ package dailyintake
 import (
 	"calorie_deficit/internal/constants"
 	dailyintakedto "calorie_deficit/internal/dto/dailyintake"
+	"calorie_deficit/internal/pkg/logger"
 	"time"
 
 	"gorm.io/gorm"
@@ -44,7 +45,7 @@ func MapDailyIntakeToResponseDTO(intake DailyIntake) DailyIntakeCreateResponseDT
 	return DailyIntakeCreateResponseDTO{
 		ID:        intake.ID,
 		UserID:    intake.UserID,
-		Date:      intake.Date.Format(constants.IsoFormatMilSec),
+		Date:      intake.Date.Format(constants.IsoFormatDate),
 		MealType:  intake.MealType,
 		MealItems: MapMealItemsToResponseDTO(intake.MealItems),
 		CreatedAt: intake.CreatedAt.Format(constants.IsoFormatMilSec),
@@ -70,7 +71,10 @@ func (repository *Repository) CreateDailyIntake(params *DailyIntakeCreateService
 	dailyIntake := DailyIntake{
 		UserID: params.UserID,
 		Date: func() time.Time {
-			parsedDate, _ := time.Parse("2006-01-02T15:04:05.000Z", params.Date)
+			parsedDate, err := time.Parse(constants.IsoFormatDate, params.Date)
+			if err != nil {
+				logger.Logger.Error("Failed to parse date:", err)
+			}
 			return parsedDate
 		}(),
 		MealType: params.MealType,
@@ -101,13 +105,13 @@ func (repository *Repository) CreateDailyIntake(params *DailyIntakeCreateService
 func (repository *Repository) GetDailyIntakeByDateAndMealType(userID uint, date string, mealType constants.MealType) (*DailyIntake, error) {
 	var dailyIntake DailyIntake
 	// Parse the date string to time.Time
-	parsedDate, err := time.Parse("2006-01-02T15:04:05.000Z", date)
+	parsedDate, err := time.Parse(constants.IsoFormatDate, date)
 	if err != nil {
 		return nil, err
 	}
 	// Query the database for the daily intake record the date only needs to match the date part
 	err = repository.DB.
-		Where("user_id = ? AND DATE(date) = ? AND meal_type = ?", userID, parsedDate.Format("2006-01-02"), mealType).
+		Where("user_id = ? AND DATE(date) = ? AND meal_type = ?", userID, parsedDate.Format(constants.IsoFormatDate), mealType).
 		First(&dailyIntake).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -208,7 +212,7 @@ func (repository *Repository) GetDailyIntakesList(params DailyIntakesListService
 	// Only Picks One Date
 	// TODO: Use CreatedAt instead of Date and Range
 	if params.Date != nil {
-		query = query.Where("DATE(date) = ?", params.Date.Format("2006-01-02"))
+		query = query.Where("DATE(date) = ?", params.Date.Format(constants.IsoFormatDate))
 	}
 	if params.MealType != "" {
 		query = query.Where("meal_type = ?", params.MealType)

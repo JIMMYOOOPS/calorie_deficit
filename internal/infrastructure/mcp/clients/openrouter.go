@@ -44,31 +44,31 @@ func (openRouterClient *OpenRouterClient) CreateChatCompletion(ctx context.Conte
 		// If schema is nil, use an empty JSON object
 		schema = make(map[string]interface{})
 	}
-	schemaBytes, jsonParseError := json.Marshal(schema)
-	if jsonParseError != nil {
-		logger.Logger.Errorf("Error marshalling schema to JSON: %v", jsonParseError)
-		return "", jsonParseError
-	}
+	// TODO: Temporarily commented out the schema conversion
+	// schemaBytes, jsonParseError := json.Marshal(schema)
+	// if jsonParseError != nil {
+	// 	logger.Logger.Errorf("Error marshalling schema to JSON: %v", jsonParseError)
+	// 	return "", jsonParseError
+	// }
 	/*
 		the response schema is set to MealItemDTO type
 	*/
-	responseFormat := &openRouter.ChatCompletionResponseFormat{
-		Type: openRouter.ChatCompletionResponseFormatTypeJSONSchema,
-		// The schema is set to the MealItemDTO type
-		JSONSchema: &openRouter.ChatCompletionResponseFormatJSONSchema{
-			Name:   "MealItems",
-			Strict: true,
-			Schema: json.RawMessage(schemaBytes),
-		},
-	}
+	// responseFormat := &openRouter.ChatCompletionResponseFormat{
+	// 	Type: openRouter.ChatCompletionResponseFormatTypeJSONSchema,
+	// 	// The schema is set to the MealItemDTO type
+	// 	JSONSchema: &openRouter.ChatCompletionResponseFormatJSONSchema{
+	// 		Name: "MealItems",
+	// 		// Strict: true,
+	// 		Schema: json.RawMessage(schemaBytes),
+	// 	},
+	// }
 
 	chatCompletionRequest := openRouter.ChatCompletionRequest{
-		Model:          model,
-		Messages:       messages,
-		ResponseFormat: responseFormat,
+		Model:    model,
+		Messages: messages,
+		// ResponseFormat: responseFormat, // TODO: Uncomment this line when the schema is ready
 	}
 
-	fmt.Println("ChatCompletionRequest:", chatCompletionRequest)
 	reqBytes, _ := json.MarshalIndent(chatCompletionRequest, "", "  ")
 	fmt.Println("Outgoing request JSON:", string(reqBytes))
 

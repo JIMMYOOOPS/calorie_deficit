@@ -18,3 +18,8 @@ type ErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
+
+// Error implements the error interface for ErrorResponse
+func (e ErrorResponse) Error() string {
+	return e.Message
+}

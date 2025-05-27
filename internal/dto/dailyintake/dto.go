@@ -12,7 +12,7 @@ type MealItemRequestDTO struct {
 	Name        string                    `json:"name" binding:"required"`                       // Name of the meal item
 	Measurement constants.MeasurementType `json:"measurement" binding:"required,oneof=grams ml"` // Measurement is an enum for the measurement type
 	Quantity    float64                   `json:"quantity" binding:"required"`                   // Quantity of the meal item
-	Calorie     float64                   `json:"calorie" binding:"omitempty"`                   // Calorie of the meal item
+	// Calorie     float64                   `json:"calorie" binding:"omitempty"`                   // Calorie of the meal item
 }
 
 type MealItemResponseDTO struct {
@@ -24,19 +24,25 @@ type MealItemResponseDTO struct {
 	Calorie       float64                   `json:"calorie"`         // Calorie of the meal item
 }
 
+type CreateMealItemDTO struct {
+	Name        string                    `json:"name"`        // Name of the meal item
+	Measurement constants.MeasurementType `json:"measurement"` // Measurement is an enum for the measurement type
+	Quantity    float64                   `json:"quantity"`    // Quantity of the meal item
+}
+
 type MealItemDTO struct {
 	// ID            uint                      `json:"id"`              // ID is the primary key of the meal item table
 	// DailyIntakeID uint                      `json:"daily_intake_id"` // DailyIntakeID is the foreign key to the daily intake table
-	Name        string                    `json:"name"`                        // Name of the meal item
-	Measurement constants.MeasurementType `json:"measurement"`                 // Measurement is an enum for the measurement type
-	Quantity    float64                   `json:"quantity"`                    // Quantity of the meal item
-	Calorie     float64                   `json:"calorie" binding:"omitempty"` // Calorie of the meal item
+	Name        string                    `json:"name"`              // Name of the meal item
+	Measurement constants.MeasurementType `json:"measurement"`       // Measurement is an enum for the measurement type
+	Quantity    float64                   `json:"quantity"`          // Quantity of the meal item
+	Calorie     float64                   `json:"calorie,omitempty"` // Calorie of the meal item
 }
 
 // Create
 type DailyIntakeCreateRequestDTO struct {
 	UserID    uint                 `json:"user_id" binding:"required"`
-	Date      string               `json:"date" binding:"required,datetime=2006-01-02T15:04:05.000Z"`       // Date in ISO 8601
+	Date      string               `json:"date" binding:"required,datetime=2006-01-02"`                     // Date in ISO 8601
 	MealType  constants.MealType   `json:"meal_type" binding:"required,oneof=breakfast lunch dinner snack"` // MealType is an enum for the meal type
 	MealItems []MealItemRequestDTO `json:"meal_items" binding:"required,dive"`                              // MealItems is a slice of MealItem
 }

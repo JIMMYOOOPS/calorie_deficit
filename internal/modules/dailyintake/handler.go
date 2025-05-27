@@ -19,15 +19,6 @@ type (
 	DailyIntakeUpdateRequestDTO = dailyintakedto.DailyIntakeUpdateRequestDTO
 )
 
-// DailyIntakeCreateRequestDTO represents the request body for creating a daily intake
-func MapMealItemsToDTO(items []MealItemRequestDTO) []MealItemDTO {
-	result := make([]MealItemDTO, len(items))
-	for i, item := range items {
-		result[i] = MealItemDTO(item) // if fields match exactly
-	}
-	return result
-}
-
 type Handler struct {
 	Service               *Service
 	MCPDailyIntakeService *dailyintakeapplication.MCPDailyIntakeService
@@ -74,16 +65,16 @@ func (h *Handler) CreateDailyIntake(context *gin.Context) {
 		mealItems[i] = dailyintakedto.MealItemRequestDTO(item)
 	}
 
-	serviceRequest, mcpDailyIntakeServiceError := h.MCPDailyIntakeService.GetMealCalories(createReq)
-	if mcpDailyIntakeServiceError != nil {
-		logger.Logger.Error(mcpDailyIntakeServiceError.Error())
-		context.JSON(400, types.AppError(errInvalidRequest))
+	serviceRequest, err := h.MCPDailyIntakeService.GetMealCalories(createReq, mealItems)
+	if err != nil {
+		logger.Logger.Error(err.Error())
+		handler.ErrorResponse(context, err)
 		return
 	}
 	// Call the service layer to create the daily intake
-	serviceResponse, serviceError := h.Service.CreateDailyIntake(serviceRequest)
-	if serviceError != nil {
-		handler.ErrorResponse(context, serviceError)
+	serviceResponse, err := h.Service.CreateDailyIntake(serviceRequest)
+	if err != nil {
+		handler.ErrorResponse(context, err)
 		return
 	}
 

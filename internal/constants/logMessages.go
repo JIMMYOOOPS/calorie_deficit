@@ -26,6 +26,7 @@ type MCPLogMessages struct {
 		ClientInitialized     string
 		ClientInitFailed      string
 		InvalidModelSpecified string
+		EmptyResponse         string
 	}
 }
 
@@ -61,10 +62,12 @@ var LogMessages = struct {
 			ClientInitialized     string
 			ClientInitFailed      string
 			InvalidModelSpecified string
+			EmptyResponse         string
 		}{
 			ClientInitialized:     "Client: %s, initialized successfully",
 			ClientInitFailed:      "Failed to initialize Client: %s",
 			InvalidModelSpecified: "Invalid model specified: %s",
+			EmptyResponse:         "Empty response from LLM client",
 		},
 	},
 }

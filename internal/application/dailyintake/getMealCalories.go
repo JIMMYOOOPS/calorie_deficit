@@ -2,9 +2,11 @@
 package dailyintakeapplication
 
 import (
+	"calorie_deficit/internal/constants"
 	dailyintakedto "calorie_deficit/internal/dto/dailyintake"
 	"calorie_deficit/internal/infrastructure/mcp"
 	"calorie_deficit/internal/pkg/logger"
+	"calorie_deficit/internal/types"
 
 	"context"
 	"encoding/json"
@@ -22,24 +24,31 @@ func NewMCPDailyIntakeService(mcpClient mcp.LLMClient) *MCPDailyIntakeService {
 
 // init the types to be used imported from dailyintake package
 type DailyIntakeCreateRequestDTO = dailyintakedto.DailyIntakeCreateRequestDTO
+type MealItemRequestDTO = dailyintakedto.MealItemRequestDTO
 type DailyIntakeCreateServiceDTO = dailyintakedto.DailyIntakeCreateServiceDTO
 type MealItemDTO = dailyintakedto.MealItemDTO
 
-func (s *MCPDailyIntakeService) GetMealCalories(params DailyIntakeCreateRequestDTO) (DailyIntakeCreateServiceDTO, error) {
+var (
+	// ErrEmptyResponse is an error for empty response from the LLM client
+	errEmptyResponse = types.AppError{
+		Code:    400,
+		Message: constants.LogMessages.MCP.Client.EmptyResponse,
+	}
+)
+
+func (s *MCPDailyIntakeService) GetMealCalories(params DailyIntakeCreateRequestDTO, mealItems []MealItemRequestDTO) (DailyIntakeCreateServiceDTO, error) {
 	// Call the LLM client to get the meal calories for meal items
-	mealItems := params.MealItems
-	mealItemsDTO := make([]MealItemDTO, len(mealItems))
+	mealItemsDTO := make([]MealItemRequestDTO, len(mealItems))
 	for i, item := range mealItems {
-		mealItemsDTO[i] = MealItemDTO(item)
+		mealItemsDTO[i] = MealItemRequestDTO(item)
 	}
 	// Form the prompt for the LLM client
-	jsonMealItemsDTO, stringifyError := json.Marshal(mealItemsDTO)
-	if stringifyError != nil {
-		return DailyIntakeCreateServiceDTO{}, stringifyError
+	jsonMealItemsDTO, err := json.Marshal(mealItemsDTO)
+	if err != nil {
+		return DailyIntakeCreateServiceDTO{}, err
 	}
 	// The prompt should be a string that describes the meal items and asks for their calorie count
-	userRoleInput := `Here is the list of meal items:
-		` + string(jsonMealItemsDTO)
+	userRoleInput := "Given the following meal items, estimate the calorie count for each and return ONLY a JSON array with all fields filled in (name, measurement, quantity, calorie). Do not include any explanation or extra text.\n\n" + string(jsonMealItemsDTO)
 	schema := map[string]interface{}{
 		"type": "array",
 		"items": map[string]interface{}{
@@ -51,7 +60,7 @@ func (s *MCPDailyIntakeService) GetMealCalories(params DailyIntakeCreateRequestD
 				},
 				"measurement": map[string]interface{}{
 					"type":        "string",
-					"description": "the measurement of the meal item",
+					"description": "the measurement of the meal item should be one of the following: grams, ml",
 				},
 				"calorie": map[string]interface{}{
 					"type":        "number",
@@ -73,6 +82,11 @@ func (s *MCPDailyIntakeService) GetMealCalories(params DailyIntakeCreateRequestD
 		logger.Logger.Errorf("Error calling LLM client: %v", err)
 		return DailyIntakeCreateServiceDTO{}, err
 	}
+	if promptResponse == "" {
+		logger.Logger.Error("Empty response from LLM client, Please try again")
+		return DailyIntakeCreateServiceDTO{}, &errEmptyResponse
+	}
+	logger.Logger.Infof("Raw LLM response: '%s'", promptResponse)
 	// Parse the response from the LLM client
 	var mealCaloriesResponse []MealItemDTO
 	err = json.Unmarshal([]byte(promptResponse), &mealCaloriesResponse)
