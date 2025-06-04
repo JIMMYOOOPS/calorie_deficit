@@ -26,6 +26,8 @@ type MealItem struct {
 	Measurement   constants.MeasurementType
 	Quantity      float64
 	Calorie       float64
+	CreatedAt     time.Time `gorm:"autoCreateTime"`
+	UpdatedAt     time.Time `gorm:"autoUpdateTime"`
 }
 
 // TableName returns the table name for the DailyIntake model
